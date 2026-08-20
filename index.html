@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#101820" />
+  <meta name="description" content="A pocket-sized creative studio for TikTok ideas, scripts, captions and hashtags." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <title>Pulse Studio | TikTok AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div>
+        <p class="eyebrow">Creator workspace</p>
+        <h1>Pulse Studio</h1>
+      </div>
+      <button class="icon-button" id="settingsButton" aria-label="Open settings">⚙</button>
+    </header>
+
+    <main>
+      <section class="hero-panel">
+        <div>
+          <p class="eyebrow accent">Today’s signal</p>
+          <h2>Make the next post<br /><em>impossible to skip.</em></h2>
+          <p class="hero-copy">A pocket-sized creative room for hooks, scripts, captions and hashtag direction.</p>
+        </div>
+        <div class="signal-orbit" aria-hidden="true"><span>LIVE</span></div>
+      </section>
+
+      <section class="control-strip" aria-label="Content settings">
+        <label>Content lane<select id="nicheSelect"><option>Comedy / Entertainment</option><option>Beauty & Fashion</option><option>Fitness & Health</option><option>Food & Cooking</option><option>Travel</option><option>Tech & Gaming</option><option>Education</option></select></label>
+        <label>Voice<select id="toneSelect"><option>Energetic & Fun</option><option>Educational</option><option>Inspirational</option><option>Relatable / Funny</option><option>Aesthetic & Calm</option><option>Bold & Direct</option></select></label>
+        <label>Length<select id="durationSelect"><option>15 sec</option><option>30 sec</option><option>60 sec</option><option>3 min</option></select></label>
+      </section>
+
+      <nav class="mode-tabs" aria-label="Creative modes">
+        <button class="mode-tab active" data-mode="ideas"><span>✦</span> Ideas</button>
+        <button class="mode-tab" data-mode="script"><span>▤</span> Script</button>
+        <button class="mode-tab" data-mode="captions"><span>⌁</span> Captions</button>
+        <button class="mode-tab" data-mode="hashtags"><span>#</span> Tags</button>
+      </nav>
+
+      <section class="workbench">
+        <div class="section-heading">
+          <div><p class="eyebrow accent">Creative brief</p><h2 id="modeTitle">Viral idea generator</h2></div>
+          <span class="demo-badge">LOCAL DEMO</span>
+        </div>
+        <label class="field-label" id="topicLabel">What are you exploring?</label>
+        <div class="input-row"><input id="topicInput" placeholder="e.g. morning routine, AI tools..." /><button class="primary-button" id="generateButton">Generate <span>↗</span></button></div>
+        <p class="helper-text" id="helperText">Runs locally with sample intelligence. No API key or payment required.</p>
+      </section>
+
+      <section id="results" class="results" aria-live="polite"></section>
+    </main>
+
+    <footer class="bottom-nav"><button class="bottom-item active" id="studioButton"><span>✦</span><small>Studio</small></button><button class="bottom-item" id="savedButton"><span>♡</span><small>Saved</small></button><button class="bottom-item" id="infoButton"><span>i</span><small>About</small></button></footer>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js"></script>
+  <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>
+</body>
+</html>
