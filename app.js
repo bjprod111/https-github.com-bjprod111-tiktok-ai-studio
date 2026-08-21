@@ -58,7 +58,8 @@ const state = {
   feed: JSON.parse(localStorage.getItem(STORAGE.feed) || JSON.stringify(DEFAULT_FEED)),
   currentProjectId: null,
   mode: 'ideas',
-  view: 'auth'
+  view: 'auth',
+  viewHistory: []
 };
 
 const modes = {
@@ -114,7 +115,10 @@ function toast(message) {
   setTimeout(() => el.classList.remove('show'), 2200);
 }
 
-function showView(name) {
+function showView(name, options = {}) {
+  if (options.record !== false && state.view !== name) {
+    state.viewHistory.push(state.view);
+  }
   state.view = name;
   document.querySelectorAll('[data-view]').forEach((view) => {
     view.classList.toggle('hidden', view.dataset.view !== name);
@@ -129,31 +133,24 @@ function showView(name) {
 }
 
 function goHome() {
+  state.viewHistory = [];
   if (state.currentUser) {
-    showView('dashboard');
+    showView('dashboard', { record: false });
     loadDashboard();
     return;
   }
-  showView('auth');
+  showView('auth', { record: false });
   setAuthMode('login');
   prefillDemo();
 }
 
 function goBack() {
-  if (state.view === 'project' || state.view === 'account') {
-    goHome();
-    return;
-  }
-  if (state.view === 'studio') {
-    if (state.currentUser) goHome();
-    else {
-      showView('auth');
-      setAuthMode('login');
-      prefillDemo();
-    }
-    return;
-  }
-  if (state.view === 'dashboard') goHome();
+  const previousView = state.viewHistory.pop();
+  if (!previousView) return toast('You are already at the first page.');
+  showView(previousView, { record: false });
+  if (previousView === 'dashboard') loadDashboard();
+  if (previousView === 'account') loadAccount();
+  if (previousView === 'project') loadProjectEditor();
 }
 
 function setAuthMode(mode) {
@@ -649,16 +646,10 @@ function bindApp() {
   if ($('showLoginBtn')) $('showLoginBtn').addEventListener('click', () => setAuthMode('login'));
   if ($('openStudioBtn')) $('openStudioBtn').addEventListener('click', () => { showView('studio'); });
   if ($('openStudioFromDashboard')) $('openStudioFromDashboard').addEventListener('click', () => { showView('studio'); });
-  if ($('dashboardHomeButton')) $('dashboardHomeButton').addEventListener('click', goHome);
   if ($('globalBackButton')) $('globalBackButton').addEventListener('click', goBack);
   if ($('globalHomeButton')) $('globalHomeButton').addEventListener('click', goHome);
-  if ($('studioBackButton')) $('studioBackButton').addEventListener('click', goBack);
-  if ($('studioHomeButton')) $('studioHomeButton').addEventListener('click', goHome);
-  if ($('projectBackButton')) $('projectBackButton').addEventListener('click', goBack);
-  if ($('projectHomeButton')) $('projectHomeButton').addEventListener('click', goHome);
   if ($('openAccountBtn')) $('openAccountBtn').addEventListener('click', () => { showView('account'); loadAccount(); });
   if ($('accountBackBtn')) $('accountBackBtn').addEventListener('click', () => { showView('dashboard'); loadDashboard(); });
-  if ($('accountHomeButton')) $('accountHomeButton').addEventListener('click', goHome);
 
   document.querySelectorAll('#logoutBtn').forEach((button) => {
     button.addEventListener('click', () => {
