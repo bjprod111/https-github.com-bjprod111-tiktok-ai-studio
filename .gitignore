@@ -1,0 +1,7 @@
+node_modules/
+pulse-studio.db
+Pulse-Studio-Mobile-Transfer.zip
+npm-debug.log*
+.env
+.env.*
+!.env.example
