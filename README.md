@@ -12,6 +12,10 @@ py -m http.server 5173
 
 Open http://localhost:5173 in a browser. The app is a free local demo: it generates sample ideas, scripts, captions and hashtags in the browser, so no API key is required for preview.
 
+## Architecture blueprint
+
+A mobile-first product and workflow blueprint is available in the [architecture/mobile-ui-blueprint.md](architecture/mobile-ui-blueprint.md) file.
+
 ## Publish for free with GitHub Pages
 
 1. Create a new GitHub repository, for example `tiktok-app-mobile`.

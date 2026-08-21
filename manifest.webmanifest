@@ -1,10 +1,17 @@
 {
   "name": "Pulse Studio",
   "short_name": "Pulse",
-  "description": "A pocket-sized TikTok creative studio.",
+  "description": "A modern mobile-first TikTok creative studio.",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#101820",
-  "theme_color": "#101820",
-  "icons": []
+  "background_color": "#070d19",
+  "theme_color": "#070d19",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
