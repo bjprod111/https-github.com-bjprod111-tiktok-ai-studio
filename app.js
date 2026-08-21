@@ -650,6 +650,8 @@ function bindApp() {
   if ($('openStudioBtn')) $('openStudioBtn').addEventListener('click', () => { showView('studio'); });
   if ($('openStudioFromDashboard')) $('openStudioFromDashboard').addEventListener('click', () => { showView('studio'); });
   if ($('dashboardHomeButton')) $('dashboardHomeButton').addEventListener('click', goHome);
+  if ($('globalBackButton')) $('globalBackButton').addEventListener('click', goBack);
+  if ($('globalHomeButton')) $('globalHomeButton').addEventListener('click', goHome);
   if ($('studioBackButton')) $('studioBackButton').addEventListener('click', goBack);
   if ($('studioHomeButton')) $('studioHomeButton').addEventListener('click', goHome);
   if ($('projectBackButton')) $('projectBackButton').addEventListener('click', goBack);

@@ -25,6 +25,10 @@
    .nav-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .nav-icon-button { min-width: 44px; min-height: 44px; padding: 0 12px; border: 1px solid rgba(148,163,184,0.18); border-radius: 14px; background: rgba(255,255,255,0.04); color: var(--text); font: inherit; font-size: 1.2rem; cursor: pointer; }
   .nav-icon-button:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+  .global-nav { position: fixed; z-index: 20; right: 14px; bottom: max(14px, env(safe-area-inset-bottom)); left: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: min(calc(100% - 28px), 402px); margin: 0 auto; padding: 8px; border: 1px solid rgba(217,255,150,0.3); border-radius: 18px; background: rgba(7,13,25,0.96); box-shadow: 0 14px 36px rgba(0,0,0,0.45); }
+  .global-nav button { min-height: 48px; border: 1px solid rgba(148,163,184,0.3); border-radius: 12px; color: var(--text); background: rgba(255,255,255,0.08); font-weight: 800; }
+  .global-nav button:first-child { color: #071016; background: var(--lime); }
+  .global-nav button:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 2px; }
    .dashboard-shell, .project-shell { max-width: 920px; margin: 0 auto; }
    .dashboard-header, .project-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
@@ -238,6 +242,10 @@
  </div>
 
  <div class="toast" id="toast" role="status"></div>
+ <nav class="global-nav" aria-label="Page navigation">
+   <button type="button" id="globalBackButton" aria-label="Go back">← Back</button>
+   <button type="button" id="globalHomeButton" aria-label="Go home">⌂ Home</button>
+ </nav>
  <script src="app.js"></script>
  <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>
 </body>
