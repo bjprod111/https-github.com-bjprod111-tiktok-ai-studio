@@ -23,6 +23,8 @@
    .auth-form button { background: linear-gradient(135deg, var(--lime), #b7ff50); color: #08141d; font-weight: 800; }
    .secondary-btn { background: rgba(255,255,255,0.04) !important; color: var(--text) !important; }
    .nav-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .nav-icon-button { min-width: 44px; min-height: 44px; padding: 0 12px; border: 1px solid rgba(148,163,184,0.18); border-radius: 14px; background: rgba(255,255,255,0.04); color: var(--text); font: inherit; font-size: 1.2rem; cursor: pointer; }
+  .nav-icon-button:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
    .dashboard-shell, .project-shell { max-width: 920px; margin: 0 auto; }
    .dashboard-header, .project-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
@@ -77,6 +79,7 @@
        <h1>Pulse Studio</h1>
      </div>
      <div class="nav-row">
+       <button class="nav-icon-button" id="dashboardHomeButton" aria-label="Home" title="Home">⌂</button>
        <button class="primary-button" id="openStudioFromDashboard">Studio</button>
        <button class="secondary-btn" id="openAccountBtn">Account</button>
        <button class="secondary-btn" id="logoutBtn">Logout</button>
@@ -112,6 +115,10 @@
 
  <div id="studioView" data-view="studio" class="app-shell hidden">
    <header class="topbar">
+     <div class="nav-row">
+       <button class="nav-icon-button" id="studioBackButton" aria-label="Back" title="Back">←</button>
+       <button class="nav-icon-button" id="studioHomeButton" aria-label="Home" title="Home">⌂</button>
+     </div>
      <div class="brand-mark" aria-label="Pulse Studio brand"><span></span><span></span><span></span></div>
      <div class="brand-copy">
        <p class="eyebrow">Creator workspace</p>
@@ -171,6 +178,10 @@
 
  <div id="projectView" data-view="project" class="app-shell project-shell hidden">
    <div class="project-header">
+     <div class="nav-row">
+       <button class="nav-icon-button" id="projectBackButton" aria-label="Back" title="Back">←</button>
+       <button class="nav-icon-button" id="projectHomeButton" aria-label="Home" title="Home">⌂</button>
+     </div>
      <div><div class="eyebrow accent">Project editor</div><h1 id="projectTitle">Project</h1></div>
      <div class="nav-row">
        <button class="secondary-btn" id="backToDashboard">Dashboard</button>
@@ -204,6 +215,7 @@
        <h1>Account</h1>
      </div>
      <div class="nav-row">
+       <button class="nav-icon-button" id="accountHomeButton" aria-label="Home" title="Home">⌂</button>
        <button class="secondary-btn" id="accountBackBtn">Dashboard</button>
        <button class="secondary-btn" id="logoutBtn">Logout</button>
      </div>

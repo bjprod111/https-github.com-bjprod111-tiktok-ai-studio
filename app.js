@@ -128,6 +128,34 @@ function showView(name) {
   }
 }
 
+function goHome() {
+  if (state.currentUser) {
+    showView('dashboard');
+    loadDashboard();
+    return;
+  }
+  showView('auth');
+  setAuthMode('login');
+  prefillDemo();
+}
+
+function goBack() {
+  if (state.view === 'project' || state.view === 'account') {
+    goHome();
+    return;
+  }
+  if (state.view === 'studio') {
+    if (state.currentUser) goHome();
+    else {
+      showView('auth');
+      setAuthMode('login');
+      prefillDemo();
+    }
+    return;
+  }
+  if (state.view === 'dashboard') goHome();
+}
+
 function setAuthMode(mode) {
   const loginCard = $('authFormView');
   const signupCard = $('signupFormView');
@@ -621,8 +649,14 @@ function bindApp() {
   if ($('showLoginBtn')) $('showLoginBtn').addEventListener('click', () => setAuthMode('login'));
   if ($('openStudioBtn')) $('openStudioBtn').addEventListener('click', () => { showView('studio'); });
   if ($('openStudioFromDashboard')) $('openStudioFromDashboard').addEventListener('click', () => { showView('studio'); });
+  if ($('dashboardHomeButton')) $('dashboardHomeButton').addEventListener('click', goHome);
+  if ($('studioBackButton')) $('studioBackButton').addEventListener('click', goBack);
+  if ($('studioHomeButton')) $('studioHomeButton').addEventListener('click', goHome);
+  if ($('projectBackButton')) $('projectBackButton').addEventListener('click', goBack);
+  if ($('projectHomeButton')) $('projectHomeButton').addEventListener('click', goHome);
   if ($('openAccountBtn')) $('openAccountBtn').addEventListener('click', () => { showView('account'); loadAccount(); });
   if ($('accountBackBtn')) $('accountBackBtn').addEventListener('click', () => { showView('dashboard'); loadDashboard(); });
+  if ($('accountHomeButton')) $('accountHomeButton').addEventListener('click', goHome);
 
   document.querySelectorAll('#logoutBtn').forEach((button) => {
     button.addEventListener('click', () => {
