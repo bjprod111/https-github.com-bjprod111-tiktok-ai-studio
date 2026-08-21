@@ -1,8 +1,8 @@
 # TikTokApp mobile
 
-Root directory: `C:\TikTokApp-mobile.worktrees\mobile-responsive-ui-redesign`
+Named root directory: `C:\TikTokApp-mobile.worktrees\mobile-responsive-ui-redesign`
 
-To run the complete local app on Windows, double-click `Run-Pulse-Studio.bat` in this folder. It finds an available localhost port starting at `3000`, starts the backend, and opens the app in your browser.
+Single-file local launcher: double-click `Run-Pulse-Studio.bat` in the named root directory. It finds an available localhost port starting at `3000`, starts the backend on `127.0.0.1`, and opens the app in your browser. Nothing is exposed to your cafe or local network.
 
 A mobile-first companion to the Streamlit TikTok AI Content Studio. It is a free static web app with local demo generation and browser-only saved ideas.
 
@@ -51,13 +51,11 @@ The backend binds to `127.0.0.1` by default, so it is not shared with other devi
 
 GitHub Pages is the secure deployment option for the mobile browser studio. The workflow publishes only the static browser files; it does not publish the Node.js backend, SQLite database, dependencies or local transfer archive. It uses GitHub's HTTPS Pages hosting and does not require a tunnel to your computer.
 
-The repository remote must point to your actual GitHub repository. The current local remote is still a placeholder: `https://github.com/YOUR_USERNAME/tiktok-app-mobile.git`.
+The connected GitHub repository is `https://github.com/bjprod111/https-github.com-TON_USERNAME-tiktok-ai-studio.git`.
 
-1. Create a new GitHub repository, for example `tiktok-app-mobile`.
-2. Upload the contents of this folder to the repository root.
-3. Push to the `main` branch.
-4. In GitHub, open **Settings > Pages**, choose **GitHub Actions**, and wait for the `Deploy Pulse Studio` workflow.
-5. GitHub will show the public URL under **Settings > Pages**.
+1. Push changes to the `main` branch.
+2. GitHub Actions publishes only the static frontend files.
+3. The deployed app is available at `https://bjprod111.github.io/https-github.com-TON_USERNAME-tiktok-ai-studio/`.
 
 The app works without a backend, database or paid API. Saved ideas stay on each user's device. Do not put Gemini, Anthropic or OpenAI keys in `app.js` or any browser file.
 

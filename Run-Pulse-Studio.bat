@@ -23,11 +23,11 @@ if not exist "node_modules\express" (
 
 for /f "delims=" %%P in ('powershell -NoProfile -ExecutionPolicy Bypass -Command "$p=3000; while($true){$c=New-Object Net.Sockets.TcpClient; try{$a=$c.BeginConnect('127.0.0.1',$p,$null,$null); if($a.AsyncWaitHandle.WaitOne(100)){$c.EndConnect($a);$p++;continue}}catch{}finally{$c.Close()};break};$p"') do set "PORT=%%P"
 
-echo Starting Pulse Studio on http://localhost:%PORT%/
-start "Pulse Studio Server" /min cmd /c "set PORT=%PORT%&& node server.js"
+echo Starting Pulse Studio locally on http://127.0.0.1:%PORT%/
+start "Pulse Studio Server" /min cmd /c "set HOST=127.0.0.1&& set PORT=%PORT%&& node server.js"
 timeout /t 2 /nobreak >nul
-start "" "http://localhost:%PORT%/"
+start "" "http://127.0.0.1:%PORT%/"
 
-echo Pulse Studio is running at http://localhost:%PORT%/
+echo Pulse Studio is running at http://127.0.0.1:%PORT%/
 echo Close the Pulse Studio Server window to stop the app.
 endlocal
