@@ -14,32 +14,24 @@
     .accent-text { background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .nav-active { color: #818cf8; position: relative; }
     .nav-active::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: #818cf8; border-radius: 50%; }
-    /* Hide scrollbars */
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between pb-20 select-none">
 
-  <!-- Dynamic Top Navigation Header -->
+  <!-- Header -->
   <header class="glass-nav sticky top-0 z-40 px-4 py-3 flex items-center justify-between border-b">
     <div class="flex items-center space-x-2">
-      <!-- Back Button -->
       <button id="btnBack" class="hidden p-2 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-200 transition-colors">
         <i class="fa-solid fa-arrow-left text-sm"></i>
       </button>
-      <!-- Home Button -->
       <button id="btnHome" class="p-2 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-200 transition-colors">
         <i class="fa-solid fa-house text-sm"></i>
       </button>
-      <!-- App Brand -->
       <div class="flex items-center space-x-2 ml-1">
         <div class="w-7 h-7 rounded-lg accent-gradient flex items-center justify-center font-bold text-white text-xs shadow-md shadow-indigo-500/20">P</div>
         <span class="font-bold text-base tracking-tight">Pulse<span class="accent-text">Studio</span></span>
       </div>
     </div>
-
-    <!-- Right Header Actions -->
     <div class="flex items-center space-x-2">
       <button onclick="navTo('account')" class="p-2 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-200 transition-colors relative">
         <i class="fa-solid fa-user text-sm"></i>
@@ -48,12 +40,10 @@
     </div>
   </header>
 
-  <!-- Main View Container -->
+  <!-- Main View -->
   <main class="max-w-md w-full mx-auto p-4 flex-1 flex flex-col gap-5">
-
-    <!-- VIEW 1: STUDIO / GENERATOR (DEFAULT) -->
+    <!-- STUDIO VIEW -->
     <section id="view-studio" class="app-view flex flex-col gap-5">
-      <!-- Key Missing Warning Banner -->
       <div id="keyWarningBanner" class="hidden glass-card rounded-2xl p-3 border-amber-500/30 bg-amber-500/10 flex items-center justify-between">
         <div class="flex items-center space-x-2.5">
           <i class="fa-solid fa-key text-amber-400 text-sm"></i>
@@ -62,7 +52,6 @@
         <button onclick="navTo('account')" class="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold px-2.5 py-1 rounded-lg border border-amber-500/30">Setup</button>
       </div>
 
-      <!-- Studio Generator Form -->
       <div class="glass-card rounded-2xl p-5 shadow-xl">
         <div class="flex justify-between items-start mb-3">
           <div>
@@ -75,193 +64,84 @@
         <form id="studioForm" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold text-gray-300 mb-1">Niche / Topic</label>
-            <input type="text" id="topicInput" required placeholder="e.g. Minimalist Tech Setup, Moroccan Tea Ritual" 
-              class="w-full bg-gray-900/90 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+            <input type="text" id="topicInput" required placeholder="e.g. Minimalist Tech Setup" class="w-full bg-gray-900/90 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-gray-300 mb-1">Target Audience</label>
-            <input type="text" id="audienceInput" placeholder="e.g. Gen-Z Creators, Remote Workers" 
-              class="w-full bg-gray-900/90 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+            <input type="text" id="audienceInput" placeholder="e.g. Gen-Z Creators" class="w-full bg-gray-900/90 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-gray-300 mb-1">Tone & Vibe</label>
-            <select id="toneSelect" class="w-full bg-gray-900/90 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+            <select id="toneSelect" class="w-full bg-gray-900/90 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
               <option value="Energetic & Fast-Paced">Energetic & Fast-Paced</option>
               <option value="Educational & Direct">Educational & Direct</option>
               <option value="Cinematic & Storytelling">Cinematic & Storytelling</option>
               <option value="Humorous & Relatable">Humorous & Relatable</option>
             </select>
           </div>
-
-          <button type="submit" id="generateBtn" class="w-full py-3 rounded-xl accent-gradient font-semibold text-sm shadow-lg shadow-indigo-500/25 hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
+          <button type="submit" id="generateBtn" class="w-full py-3 rounded-xl accent-gradient font-semibold text-sm shadow-lg shadow-indigo-500/25 flex items-center justify-center space-x-2">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
             <span>Generate Content Bundle</span>
           </button>
         </form>
       </div>
 
-      <!-- Generated Results Container -->
       <div id="resultsContainer" class="hidden flex-col gap-4">
         <div class="flex items-center justify-between">
           <h3 class="font-bold text-xs tracking-wider text-gray-400 uppercase">Output Deliverables</h3>
           <div class="flex gap-2">
-            <button id="btnSaveProject" class="text-xs bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 px-3 py-1 rounded-lg border border-indigo-500/30 flex items-center space-x-1">
-              <i class="fa-solid fa-bookmark text-[10px]"></i>
-              <span>Save Project</span>
-            </button>
-            <button id="btnPostToFeed" class="text-xs bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 px-3 py-1 rounded-lg border border-purple-500/30 flex items-center space-x-1">
-              <i class="fa-solid fa-share-nodes text-[10px]"></i>
-              <span>Share to Feed</span>
-            </button>
+            <button id="btnSaveProject" class="text-xs bg-indigo-600/30 text-indigo-200 px-3 py-1 rounded-lg border border-indigo-500/30 flex items-center space-x-1"><i class="fa-solid fa-bookmark text-[10px]"></i><span>Save</span></button>
+            <button id="btnPostToFeed" class="text-xs bg-purple-600/30 text-purple-200 px-3 py-1 rounded-lg border border-purple-500/30 flex items-center space-x-1"><i class="fa-solid fa-share-nodes text-[10px]"></i><span>Share</span></button>
           </div>
         </div>
-
         <div class="glass-card rounded-2xl p-4">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider"><i class="fa-solid fa-video mr-1"></i> Script</span>
-            <button onclick="copyToClipboard('scriptOutput')" class="text-xs text-gray-400 hover:text-white"><i class="fa-solid fa-copy"></i></button>
-          </div>
+          <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider block mb-2"><i class="fa-solid fa-video mr-1"></i> Script</span>
           <div id="scriptOutput" class="text-xs leading-relaxed text-gray-300 whitespace-pre-line font-mono bg-gray-900/60 p-3 rounded-xl border border-gray-800"></div>
         </div>
-
         <div class="glass-card rounded-2xl p-4">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-xs font-bold text-purple-400 uppercase tracking-wider"><i class="fa-solid fa-quote-left mr-1"></i> Caption & Tags</span>
-            <button onclick="copyToClipboard('captionOutput')" class="text-xs text-gray-400 hover:text-white"><i class="fa-solid fa-copy"></i></button>
-          </div>
+          <span class="text-xs font-bold text-purple-400 uppercase tracking-wider block mb-2"><i class="fa-solid fa-quote-left mr-1"></i> Caption & Tags</span>
           <div id="captionOutput" class="text-xs leading-relaxed text-gray-300 whitespace-pre-line bg-gray-900/60 p-3 rounded-xl border border-gray-800"></div>
         </div>
       </div>
     </section>
 
-    <!-- VIEW 2: PROJECTS / SAVED SCRIPTS -->
+    <!-- PROJECTS VIEW -->
     <section id="view-projects" class="app-view hidden flex-col gap-4">
       <div class="flex justify-between items-center">
-        <div>
-          <h2 class="text-lg font-bold">Saved Projects</h2>
-          <p class="text-xs text-gray-400">Your saved script bundles & draft history.</p>
-        </div>
+        <h2 class="text-lg font-bold">Saved Projects</h2>
         <span id="projectCount" class="text-xs bg-gray-800 px-2.5 py-1 rounded-full text-gray-300 font-semibold border border-gray-700">0 items</span>
       </div>
-
-      <div id="projectsList" class="flex flex-col gap-3">
-        <!-- Rendered via JS -->
-      </div>
+      <div id="projectsList" class="flex flex-col gap-3"></div>
     </section>
 
-    <!-- VIEW 3: COMMUNITY FEED -->
+    <!-- COMMUNITY FEED VIEW -->
     <section id="view-community" class="app-view hidden flex-col gap-4">
-      <div class="flex justify-between items-center">
-        <div>
-          <h2 class="text-lg font-bold">Community Feed</h2>
-          <p class="text-xs text-gray-400">Explore viral hooks & scripts from creators globally.</p>
-        </div>
-      </div>
-
-      <div id="communityFeedList" class="flex flex-col gap-4">
-        <!-- Rendered via JS -->
-      </div>
+      <h2 class="text-lg font-bold">Community Feed</h2>
+      <div id="communityFeedList" class="flex flex-col gap-4"></div>
     </section>
 
-    <!-- VIEW 4: ACCOUNT & API SETTINGS -->
+    <!-- ACCOUNT VIEW -->
     <section id="view-account" class="app-view hidden flex-col gap-5">
-      <div>
-        <h2 class="text-lg font-bold">Account & Settings</h2>
-        <p class="text-xs text-gray-400">Manage your credentials, AI keys & subscription options.</p>
-      </div>
-
-      <!-- User Profile Card -->
-      <div class="glass-card rounded-2xl p-4 flex items-center space-x-3">
-        <div class="w-12 h-12 rounded-full accent-gradient flex items-center justify-center font-bold text-lg text-white shadow-lg shadow-indigo-500/20">
-          <i class="fa-solid fa-user"></i>
-        </div>
-        <div class="flex-1">
-          <h3 class="text-sm font-bold text-white">Creator Pro User</h3>
-          <p class="text-xs text-gray-400">Free Tier Member</p>
-        </div>
-        <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full font-bold border border-emerald-500/30">ACTIVE</span>
-      </div>
-
-      <!-- API Key Setup Box -->
+      <h2 class="text-lg font-bold">Account & Settings</h2>
       <div class="glass-card rounded-2xl p-5 border-indigo-500/20">
-        <h3 class="text-sm font-bold mb-1 flex items-center text-indigo-300">
-          <i class="fa-solid fa-key mr-2 text-xs"></i> Google Gemini API Key
-        </h3>
-        <p class="text-xs text-gray-400 mb-3">Stored locally in your browser. Used directly for generating scripts without intermediary fees.</p>
-        
-        <input type="password" id="accountApiKeyInput" placeholder="AIzaSy..." 
-          class="w-full bg-gray-900 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white mb-3 focus:outline-none focus:border-indigo-500">
-        
-        <button id="btnSaveAccountKey" class="w-full py-2.5 accent-gradient rounded-xl font-semibold text-xs shadow-md shadow-indigo-500/20 active:scale-[0.98] transition-all">
-          Save Credentials
-        </button>
-      </div>
-
-      <!-- Monetization Ready Box (Gumroad / Lemon Squeezy Info) -->
-      <div class="glass-card rounded-2xl p-4 border-purple-500/20">
-        <div class="flex items-center space-x-2 text-purple-300 font-bold text-xs mb-1">
-          <i class="fa-solid fa-store"></i>
-          <span>Creator License & Source Code</span>
-        </div>
-        <p class="text-xs text-gray-400 mb-3">Want to sell this studio template or embed your own paid subscriptions?</p>
-        <a href="https://gumroad.com" target="_blank" class="block w-full py-2 text-center bg-purple-600/20 hover:bg-purple-600/30 text-purple-200 border border-purple-500/30 rounded-xl text-xs font-semibold">
-          Export Source / Deploy Store
-        </a>
+        <h3 class="text-sm font-bold mb-1 flex items-center text-indigo-300"><i class="fa-solid fa-key mr-2 text-xs"></i> Gemini API Key</h3>
+        <p class="text-xs text-gray-400 mb-3">Enter your Google AI Studio API Key:</p>
+        <input type="password" id="accountApiKeyInput" placeholder="AIzaSy..." class="w-full bg-gray-900 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white mb-3 focus:outline-none focus:border-indigo-500">
+        <button id="btnSaveAccountKey" class="w-full py-2.5 accent-gradient rounded-xl font-semibold text-xs shadow-md shadow-indigo-500/20">Save Key</button>
       </div>
     </section>
-
-    <!-- VIEW 5: AUTH / LOGIN -->
-    <section id="view-login" class="app-view hidden flex-col justify-center min-h-[60vh] gap-5">
-      <div class="text-center">
-        <div class="w-14 h-14 rounded-2xl accent-gradient flex items-center justify-center font-bold text-2xl text-white mx-auto mb-3 shadow-xl shadow-indigo-500/30">P</div>
-        <h2 class="text-2xl font-bold">Welcome to Pulse Studio</h2>
-        <p class="text-xs text-gray-400 mt-1">Sign in to sync your AI generated creator content.</p>
-      </div>
-
-      <div class="glass-card rounded-2xl p-5 space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-gray-300 mb-1">Email</label>
-          <input type="email" placeholder="creator@pulsestudio.app" class="w-full bg-gray-900 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-300 mb-1">Password</label>
-          <input type="password" placeholder="••••••••" class="w-full bg-gray-900 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
-        </div>
-        <button onclick="navTo('studio')" class="w-full py-3 rounded-xl accent-gradient font-semibold text-sm shadow-lg shadow-indigo-500/25">
-          Sign In / Continue
-        </button>
-      </div>
-    </section>
-
   </main>
 
-  <!-- Mobile Bottom Tab Navigation Bar -->
+  <!-- Bottom Nav -->
   <nav class="glass-nav fixed bottom-0 left-0 right-0 z-40 border-t border-gray-800 px-6 py-2">
     <div class="max-w-md mx-auto flex justify-between items-center">
-      <button onclick="navTo('studio')" id="tab-studio" class="nav-btn nav-active flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors">
-        <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
-        <span class="text-[10px] font-semibold">Studio</span>
-      </button>
-
-      <button onclick="navTo('projects')" id="tab-projects" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors">
-        <i class="fa-solid fa-folder-open text-lg"></i>
-        <span class="text-[10px] font-semibold">Projects</span>
-      </button>
-
-      <button onclick="navTo('community')" id="tab-community" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors">
-        <i class="fa-solid fa-compass text-lg"></i>
-        <span class="text-[10px] font-semibold">Feed</span>
-      </button>
-
-      <button onclick="navTo('account')" id="tab-account" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors">
-        <i class="fa-solid fa-sliders text-lg"></i>
-        <span class="text-[10px] font-semibold">Settings</span>
-      </button>
+      <button onclick="navTo('studio')" id="tab-studio" class="nav-btn nav-active flex flex-col items-center gap-1 text-gray-400 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles text-lg"></i><span class="text-[10px] font-semibold">Studio</span></button>
+      <button onclick="navTo('projects')" id="tab-projects" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-white"><i class="fa-solid fa-folder-open text-lg"></i><span class="text-[10px] font-semibold">Projects</span></button>
+      <button onclick="navTo('community')" id="tab-community" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-white"><i class="fa-solid fa-compass text-lg"></i><span class="text-[10px] font-semibold">Feed</span></button>
+      <button onclick="navTo('account')" id="tab-account" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-white"><i class="fa-solid fa-sliders text-lg"></i><span class="text-[10px] font-semibold">Settings</span></button>
     </div>
   </nav>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=2.0"></script>
 </body>
 </html>
