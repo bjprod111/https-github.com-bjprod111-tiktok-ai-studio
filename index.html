@@ -1,247 +1,267 @@
-<!doctype html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8" />
- <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
- <meta name="theme-color" content="#0b1020" />
- <meta name="description" content="Pulse Studio mobile-first creator workspace." />
- <link rel="manifest" href="manifest.webmanifest" />
- <title>Pulse Studio</title>
- <link rel="preconnect" href="https://fonts.googleapis.com" />
- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
- <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260823" />
- <style>
-   body { margin: 0; }
-   .hidden { display: none !important; }
-   .auth-shell { max-width: 440px; margin: 0 auto; }
-   .auth-card { padding: 24px 20px; border: 1px solid rgba(148,163,184,0.2); border-radius: 24px; background: rgba(15,23,42,0.85); box-shadow: 0 30px 80px rgba(5,10,20,0.6); }
-   .auth-card h1 { font-size: 2.2rem; margin: 0 0 8px; }
-   .auth-card p { color: var(--muted); margin-bottom: 18px; }
-   .auth-form { display: grid; gap: 12px; }
-   .auth-form input, .auth-form button, .auth-form select { width: 100%; min-height: 48px; padding: 0 14px; border-radius: 14px; border: 1px solid rgba(148,163,184,0.18); background: rgba(15,23,42,0.7); color: var(--text); font: inherit; }
-   .auth-form button { background: linear-gradient(135deg, var(--lime), #b7ff50); color: #08141d; font-weight: 800; }
-   .secondary-btn { background: rgba(255,255,255,0.04) !important; color: var(--text) !important; }
-   .nav-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-  .global-nav { position: fixed; z-index: 100; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); left: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: min(calc(100% - 24px), 406px); margin: 0 auto; padding: 8px; border: 1px solid rgba(217,255,150,0.45); border-radius: 20px; background: rgba(7,13,25,0.98); box-shadow: 0 18px 44px rgba(0,0,0,0.58), 0 0 0 1px rgba(255,255,255,0.05); }
-  .global-nav button { min-height: 52px; border: 1px solid rgba(148,163,184,0.32); border-radius: 14px; color: var(--text); background: rgba(255,255,255,0.1); font: 800 0.86rem 'Manrope', sans-serif; transition: transform .15s ease, background .15s ease, box-shadow .15s ease; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-  .global-nav button:active { transform: scale(.97); }
-  .global-nav button:hover { background: rgba(255,255,255,0.16); }
-  .global-nav button:first-child { color: #071016; background: var(--lime); }
-  .global-nav button:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 2px; }
-   .dashboard-shell, .project-shell { max-width: 920px; margin: 0 auto; }
-   .dashboard-header, .project-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
-   .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
-   .stat-card, .panel { padding: 18px; border-radius: 18px; border:1px solid rgba(148,163,184,0.18); background: rgba(15,23,42,0.8); }
-   .project-list { display: grid; gap: 12px; }
-   .project-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid rgba(148,163,184,0.18); border-radius: 16px; background: rgba(15,23,42,0.7); }
-   .project-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-   .small-label { color: var(--muted); font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; }
-   .pill { display: inline-flex; align-items: center; padding: 6px 8px; border-radius: 999px; background: rgba(34,211,238,0.12); color: var(--cyan); font-size: 0.68rem; }
-   .danger { background: rgba(255,88,88,0.12) !important; color: #ff9e9e !important; }
-   .field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-   .field-grid input, .field-grid textarea, .field-grid select { width: 100%; min-height: 48px; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(148,163,184,0.18); background: rgba(15,23,42,0.72); color: var(--text); }
-   textarea { min-height: 120px; }
-   .content-block { margin-top: 10px; padding: 14px; border: 1px solid rgba(148,163,184,0.18); border-radius: 16px; background: rgba(15,23,42,0.7); }
-   .content-block input, .content-block textarea { margin-top:8px; width:100%; }
-   .content-block small { color: var(--muted); }
-   .toast { position: fixed; right: 18px; bottom: 84px; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(148,163,184,0.2); background: rgba(15,23,42,0.92); color: var(--text); opacity: 0; transform: translateY(10px); pointer-events: none; transition: .2s ease; }
-   .toast.show { opacity: 1; transform: translateY(0); }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pulse Studio — Mobile AI Creator Workspace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background-color: #0b0f19; color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    .glass-card { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .glass-nav { background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(16px); border-color: rgba(255, 255, 255, 0.08); }
+    .accent-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
+    .accent-text { background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-active { color: #818cf8; position: relative; }
+    .nav-active::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: #818cf8; border-radius: 50%; }
+    /* Hide scrollbars */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
 </head>
-<body>
- <div id="authView" data-view="auth" class="app-shell auth-shell">
-   <div class="auth-card">
-     <div class="eyebrow accent">Creator workspace</div>
-     <h1>Pulse Studio</h1>
-     <p>One place for ideas, scripts, saves, exports and project analytics.</p>
-     <div id="authFormView">
-       <form class="auth-form" id="loginForm">
-         <input type="email" id="loginEmail" placeholder="Email" required />
-         <input type="password" id="loginPassword" placeholder="Password" required />
-         <button type="submit">Login</button>
-         <button type="button" class="secondary-btn" id="showSignupBtn">Create account</button>
-         <button type="button" class="secondary-btn" id="openStudioBtn">Open studio</button>
-       </form>
-     </div>
-     <div id="signupFormView" class="hidden">
-       <form class="auth-form" id="signupForm">
-         <input type="text" id="signupName" placeholder="Full name" required />
-         <input type="email" id="signupEmail" placeholder="Email" required />
-         <input type="password" id="signupPassword" placeholder="Password" required />
-         <button type="submit">Create account</button>
-         <button type="button" class="secondary-btn" id="showLoginBtn">Back to login</button>
-       </form>
-     </div>
-   </div>
- </div>
+<body class="min-h-screen flex flex-col justify-between pb-20 select-none">
 
- <div id="dashboardView" data-view="dashboard" class="app-shell dashboard-shell hidden">
-   <div class="dashboard-header">
-     <div>
-       <div class="eyebrow accent">Workspace</div>
-       <h1>Pulse Studio</h1>
-     </div>
-     <div class="nav-row">
-       <button class="primary-button" id="openStudioFromDashboard">Studio</button>
-       <button class="secondary-btn" id="openAccountBtn">Account</button>
-       <button class="secondary-btn" id="logoutBtn">Logout</button>
-     </div>
-   </div>
+  <!-- Dynamic Top Navigation Header -->
+  <header class="glass-nav sticky top-0 z-40 px-4 py-3 flex items-center justify-between border-b">
+    <div class="flex items-center space-x-2">
+      <!-- Back Button -->
+      <button id="btnBack" class="hidden p-2 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-200 transition-colors">
+        <i class="fa-solid fa-arrow-left text-sm"></i>
+      </button>
+      <!-- Home Button -->
+      <button id="btnHome" class="p-2 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-200 transition-colors">
+        <i class="fa-solid fa-house text-sm"></i>
+      </button>
+      <!-- App Brand -->
+      <div class="flex items-center space-x-2 ml-1">
+        <div class="w-7 h-7 rounded-lg accent-gradient flex items-center justify-center font-bold text-white text-xs shadow-md shadow-indigo-500/20">P</div>
+        <span class="font-bold text-base tracking-tight">Pulse<span class="accent-text">Studio</span></span>
+      </div>
+    </div>
 
-   <div class="stats-grid" id="statsGrid"></div>
+    <!-- Right Header Actions -->
+    <div class="flex items-center space-x-2">
+      <button onclick="navTo('account')" class="p-2 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-200 transition-colors relative">
+        <i class="fa-solid fa-user text-sm"></i>
+        <span id="apiKeyStatusDot" class="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-500"></span>
+      </button>
+    </div>
+  </header>
 
-   <div class="panel" style="margin-top:16px;">
-     <div class="small-label">Create project</div>
-     <div class="field-grid" style="margin-top:12px;">
-       <input id="projectName" placeholder="Project name" />
-       <select id="projectType">
-         <option value="ideas">Ideas</option>
-         <option value="script">Script</option>
-         <option value="captions">Captions</option>
-         <option value="hashtags">Hashtags</option>
-       </select>
-       <input id="projectTopic" placeholder="Topic" />
-       <input id="projectNiche" placeholder="Niche" />
-       <input id="projectTone" placeholder="Tone" />
-       <input id="projectDuration" placeholder="Duration" />
-     </div>
-     <textarea id="projectPrompt" placeholder="Prompt or brief" style="margin-top: 12px;"></textarea>
-     <button class="primary-button" id="saveProjectBtn" style="margin-top:12px; width: 100%;">Save project</button>
-   </div>
+  <!-- Main View Container -->
+  <main class="max-w-md w-full mx-auto p-4 flex-1 flex flex-col gap-5">
 
-   <div class="panel" style="margin-top:16px;">
-     <div class="small-label">Saved projects</div>
-     <div id="projectList" class="project-list" style="margin-top: 12px;"></div>
-   </div>
- </div>
+    <!-- VIEW 1: STUDIO / GENERATOR (DEFAULT) -->
+    <section id="view-studio" class="app-view flex flex-col gap-5">
+      <!-- Key Missing Warning Banner -->
+      <div id="keyWarningBanner" class="hidden glass-card rounded-2xl p-3 border-amber-500/30 bg-amber-500/10 flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <i class="fa-solid fa-key text-amber-400 text-sm"></i>
+          <span class="text-xs text-amber-200">Gemini API Key required to run AI.</span>
+        </div>
+        <button onclick="navTo('account')" class="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold px-2.5 py-1 rounded-lg border border-amber-500/30">Setup</button>
+      </div>
 
- <div id="studioView" data-view="studio" class="app-shell hidden">
-   <header class="topbar">
-     <div class="brand-mark" aria-label="Pulse Studio brand"><span></span><span></span><span></span></div>
-     <div class="brand-copy">
-       <p class="eyebrow">Creator workspace</p>
-       <h1>Pulse Studio</h1>
-     </div>
-     <button class="icon-button" id="settingsButton" aria-label="Open settings">⚙</button>
-   </header>
+      <!-- Studio Generator Form -->
+      <div class="glass-card rounded-2xl p-5 shadow-xl">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <h2 class="text-lg font-bold">AI Content Studio</h2>
+            <p class="text-xs text-gray-400">Generate viral scripts, captions & hashtag strategies.</p>
+          </div>
+          <span class="text-[10px] uppercase font-bold tracking-wider bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30">v2.5 Flash</span>
+        </div>
+        
+        <form id="studioForm" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Niche / Topic</label>
+            <input type="text" id="topicInput" required placeholder="e.g. Minimalist Tech Setup, Moroccan Tea Ritual" 
+              class="w-full bg-gray-900/90 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+          </div>
 
-   <main>
-     <section class="hero-panel">
-       <div class="hero-copy-wrap">
-         <p class="eyebrow accent">Today’s signal</p>
-         <h2>Build content that feels <span>native</span> to the scroll.</h2>
-         <p class="hero-copy">A mobile-first studio for hooks, scripts, captions and discovery tags designed to keep attention on your next post.</p>
-       </div>
-       <div class="hero-visual" aria-hidden="true"><div class="orb orb-one"></div><div class="orb orb-two"></div><div class="signal-badge">LIVE</div></div>
-     </section>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Target Audience</label>
+            <input type="text" id="audienceInput" placeholder="e.g. Gen-Z Creators, Remote Workers" 
+              class="w-full bg-gray-900/90 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+          </div>
 
-     <div class="stats-row" aria-label="Creator stats">
-       <div class="mini-stat"><strong>12k</strong><span>views</span></div>
-       <div class="mini-stat"><strong>4.9</strong><span>rating</span></div>
-       <div class="mini-stat"><strong>8 min</strong><span>saved</span></div>
-     </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Tone & Vibe</label>
+            <select id="toneSelect" class="w-full bg-gray-900/90 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+              <option value="Energetic & Fast-Paced">Energetic & Fast-Paced</option>
+              <option value="Educational & Direct">Educational & Direct</option>
+              <option value="Cinematic & Storytelling">Cinematic & Storytelling</option>
+              <option value="Humorous & Relatable">Humorous & Relatable</option>
+            </select>
+          </div>
 
-     <section class="control-strip" aria-label="Content settings">
-       <label><span>Content lane</span><select id="nicheSelect"><option>Comedy / Entertainment</option><option>Beauty & Fashion</option><option>Fitness & Health</option><option>Food & Cooking</option><option>Travel</option><option>Tech & Gaming</option><option>Education</option></select></label>
-       <label><span>Voice</span><select id="toneSelect"><option>Energetic & Fun</option><option>Educational</option><option>Inspirational</option><option>Relatable / Funny</option><option>Aesthetic & Calm</option><option>Bold & Direct</option></select></label>
-       <label><span>Length</span><select id="durationSelect"><option>15 sec</option><option>30 sec</option><option>60 sec</option><option>3 min</option></select></label>
-     </section>
+          <button type="submit" id="generateBtn" class="w-full py-3 rounded-xl accent-gradient font-semibold text-sm shadow-lg shadow-indigo-500/25 hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Generate Content Bundle</span>
+          </button>
+        </form>
+      </div>
 
-     <nav class="mode-tabs" aria-label="Creative modes">
-       <button class="mode-tab active" data-mode="ideas"><span>✦</span> Ideas</button>
-       <button class="mode-tab" data-mode="script"><span>▤</span> Script</button>
-       <button class="mode-tab" data-mode="captions"><span>⌁</span> Captions</button>
-       <button class="mode-tab" data-mode="hashtags"><span>#</span> Tags</button>
-     </nav>
+      <!-- Generated Results Container -->
+      <div id="resultsContainer" class="hidden flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-xs tracking-wider text-gray-400 uppercase">Output Deliverables</h3>
+          <div class="flex gap-2">
+            <button id="btnSaveProject" class="text-xs bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 px-3 py-1 rounded-lg border border-indigo-500/30 flex items-center space-x-1">
+              <i class="fa-solid fa-bookmark text-[10px]"></i>
+              <span>Save Project</span>
+            </button>
+            <button id="btnPostToFeed" class="text-xs bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 px-3 py-1 rounded-lg border border-purple-500/30 flex items-center space-x-1">
+              <i class="fa-solid fa-share-nodes text-[10px]"></i>
+              <span>Share to Feed</span>
+            </button>
+          </div>
+        </div>
 
-     <section class="workbench">
-       <div class="section-heading">
-         <div><p class="eyebrow accent">Creative brief</p><h2 id="modeTitle">Viral idea generator</h2></div>
-         <span class="demo-badge">LOCAL DEMO</span>
-       </div>
-       <label class="field-label" id="topicLabel">What are you exploring?</label>
-      <div class="input-row"><input id="topicInput" placeholder="e.g. morning routine, AI tools..." /><button class="primary-button" id="generateButton">Generate <span>↗</span></button></div>
-      <p class="helper-text" id="helperText">Uses Claude locally when configured, with a browser-only demo fallback.</p>
-     </section>
+        <div class="glass-card rounded-2xl p-4">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider"><i class="fa-solid fa-video mr-1"></i> Script</span>
+            <button onclick="copyToClipboard('scriptOutput')" class="text-xs text-gray-400 hover:text-white"><i class="fa-solid fa-copy"></i></button>
+          </div>
+          <div id="scriptOutput" class="text-xs leading-relaxed text-gray-300 whitespace-pre-line font-mono bg-gray-900/60 p-3 rounded-xl border border-gray-800"></div>
+        </div>
 
-     <section id="results" class="results" aria-live="polite"></section>
-   </main>
+        <div class="glass-card rounded-2xl p-4">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-bold text-purple-400 uppercase tracking-wider"><i class="fa-solid fa-quote-left mr-1"></i> Caption & Tags</span>
+            <button onclick="copyToClipboard('captionOutput')" class="text-xs text-gray-400 hover:text-white"><i class="fa-solid fa-copy"></i></button>
+          </div>
+          <div id="captionOutput" class="text-xs leading-relaxed text-gray-300 whitespace-pre-line bg-gray-900/60 p-3 rounded-xl border border-gray-800"></div>
+        </div>
+      </div>
+    </section>
 
-   <footer class="bottom-nav">
-     <button class="bottom-item active" id="studioButton"><span>✦</span><small>Studio</small></button>
-     <button class="bottom-item" id="savedButton"><span>♡</span><small>Saved</small></button>
-     <button class="bottom-item" id="infoButton"><span>i</span><small>About</small></button>
-   </footer>
- </div>
+    <!-- VIEW 2: PROJECTS / SAVED SCRIPTS -->
+    <section id="view-projects" class="app-view hidden flex-col gap-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-lg font-bold">Saved Projects</h2>
+          <p class="text-xs text-gray-400">Your saved script bundles & draft history.</p>
+        </div>
+        <span id="projectCount" class="text-xs bg-gray-800 px-2.5 py-1 rounded-full text-gray-300 font-semibold border border-gray-700">0 items</span>
+      </div>
 
- <div id="projectView" data-view="project" class="app-shell project-shell hidden">
-   <div class="project-header">
-     <div><div class="eyebrow accent">Project editor</div><h1 id="projectTitle">Project</h1></div>
-     <div class="nav-row">
-       <button class="secondary-btn" id="backToDashboard">Dashboard</button>
-       <button class="primary-button" id="saveProjectEditorBtn">Save</button>
-     </div>
-   </div>
+      <div id="projectsList" class="flex flex-col gap-3">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
 
-   <div class="panel">
-     <div class="field-grid">
-       <input id="editorName" placeholder="Project name" />
-       <select id="editorType"><option value="ideas">Ideas</option><option value="script">Script</option><option value="captions">Captions</option><option value="hashtags">Hashtags</option></select>
-       <input id="editorTopic" placeholder="Topic" />
-       <input id="editorNiche" placeholder="Niche" />
-       <input id="editorTone" placeholder="Tone" />
-       <input id="editorDuration" placeholder="Duration" />
-     </div>
-     <textarea id="editorPrompt" placeholder="Prompt or brief" style="margin-top:12px;"></textarea>
-   </div>
+    <!-- VIEW 3: COMMUNITY FEED -->
+    <section id="view-community" class="app-view hidden flex-col gap-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-lg font-bold">Community Feed</h2>
+          <p class="text-xs text-gray-400">Explore viral hooks & scripts from creators globally.</p>
+        </div>
+      </div>
 
-   <div class="panel" style="margin-top:16px;">
-     <div class="small-label">Content blocks</div>
-     <div id="editorContent"></div>
-     <button class="primary-button" id="addBlockBtn" style="margin-top:12px; width:100%;">Add content block</button>
-   </div>
- </div>
+      <div id="communityFeedList" class="flex flex-col gap-4">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
 
- <div id="accountView" data-view="account" class="app-shell dashboard-shell hidden">
-   <div class="dashboard-header">
-     <div>
-       <div class="eyebrow accent">Profile</div>
-       <h1>Account</h1>
-     </div>
-     <div class="nav-row">
-       <button class="secondary-btn" id="accountBackBtn">Dashboard</button>
-       <button class="secondary-btn" id="logoutBtn">Logout</button>
-     </div>
-   </div>
-   <div class="panel">
-     <div class="small-label">Creator</div>
-     <h2 id="accountName">Demo Creator</h2>
-     <p id="accountEmail" style="color: var(--muted); margin: 8px 0 0;">demo@pulse.app</p>
-   </div>
-   <div class="stats-grid" style="margin-top:16px;">
-     <div class="stat-card"><div class="small-label">Projects</div><div id="accountProjects" style="font-size:2rem; font-weight:800; margin-top:10px;">0</div></div>
-     <div class="stat-card"><div class="small-label">Exports</div><div id="accountExports" style="font-size:2rem; font-weight:800; margin-top:10px;">0</div></div>
-     <div class="stat-card"><div class="small-label">Status</div><div id="accountActive" style="font-size:2rem; font-weight:800; margin-top:10px;">Active</div></div>
-   </div>
-   <div class="panel" style="margin-top:16px;">
-     <div class="small-label">Import project</div>
-     <button class="primary-button" id="importProjectBtn" style="width:100%; margin-top:12px;">Import JSON</button>
-     <input id="importProjectFile" type="file" accept="application/json" class="hidden" />
-   </div>
- </div>
+    <!-- VIEW 4: ACCOUNT & API SETTINGS -->
+    <section id="view-account" class="app-view hidden flex-col gap-5">
+      <div>
+        <h2 class="text-lg font-bold">Account & Settings</h2>
+        <p class="text-xs text-gray-400">Manage your credentials, AI keys & subscription options.</p>
+      </div>
 
- <div class="toast" id="toast" role="status"></div>
- <nav class="global-nav" aria-label="Page navigation">
-   <button type="button" id="globalBackButton" aria-label="Go back">← Back</button>
-   <button type="button" id="globalHomeButton" aria-label="Go home">⌂ Home</button>
- </nav>
- <script src="app.js?v=20260822"></script>
- <script>
-   if ('serviceWorker' in navigator) {
-     navigator.serviceWorker.getRegistrations().then((registrations) => registrations.forEach((registration) => registration.unregister()));
-   }
-   if ('caches' in window) caches.keys().then((keys) => keys.forEach((key) => caches.delete(key)));
- </script>
+      <!-- User Profile Card -->
+      <div class="glass-card rounded-2xl p-4 flex items-center space-x-3">
+        <div class="w-12 h-12 rounded-full accent-gradient flex items-center justify-center font-bold text-lg text-white shadow-lg shadow-indigo-500/20">
+          <i class="fa-solid fa-user"></i>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-sm font-bold text-white">Creator Pro User</h3>
+          <p class="text-xs text-gray-400">Free Tier Member</p>
+        </div>
+        <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full font-bold border border-emerald-500/30">ACTIVE</span>
+      </div>
+
+      <!-- API Key Setup Box -->
+      <div class="glass-card rounded-2xl p-5 border-indigo-500/20">
+        <h3 class="text-sm font-bold mb-1 flex items-center text-indigo-300">
+          <i class="fa-solid fa-key mr-2 text-xs"></i> Google Gemini API Key
+        </h3>
+        <p class="text-xs text-gray-400 mb-3">Stored locally in your browser. Used directly for generating scripts without intermediary fees.</p>
+        
+        <input type="password" id="accountApiKeyInput" placeholder="AIzaSy..." 
+          class="w-full bg-gray-900 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white mb-3 focus:outline-none focus:border-indigo-500">
+        
+        <button id="btnSaveAccountKey" class="w-full py-2.5 accent-gradient rounded-xl font-semibold text-xs shadow-md shadow-indigo-500/20 active:scale-[0.98] transition-all">
+          Save Credentials
+        </button>
+      </div>
+
+      <!-- Monetization Ready Box (Gumroad / Lemon Squeezy Info) -->
+      <div class="glass-card rounded-2xl p-4 border-purple-500/20">
+        <div class="flex items-center space-x-2 text-purple-300 font-bold text-xs mb-1">
+          <i class="fa-solid fa-store"></i>
+          <span>Creator License & Source Code</span>
+        </div>
+        <p class="text-xs text-gray-400 mb-3">Want to sell this studio template or embed your own paid subscriptions?</p>
+        <a href="https://gumroad.com" target="_blank" class="block w-full py-2 text-center bg-purple-600/20 hover:bg-purple-600/30 text-purple-200 border border-purple-500/30 rounded-xl text-xs font-semibold">
+          Export Source / Deploy Store
+        </a>
+      </div>
+    </section>
+
+    <!-- VIEW 5: AUTH / LOGIN -->
+    <section id="view-login" class="app-view hidden flex-col justify-center min-h-[60vh] gap-5">
+      <div class="text-center">
+        <div class="w-14 h-14 rounded-2xl accent-gradient flex items-center justify-center font-bold text-2xl text-white mx-auto mb-3 shadow-xl shadow-indigo-500/30">P</div>
+        <h2 class="text-2xl font-bold">Welcome to Pulse Studio</h2>
+        <p class="text-xs text-gray-400 mt-1">Sign in to sync your AI generated creator content.</p>
+      </div>
+
+      <div class="glass-card rounded-2xl p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 mb-1">Email</label>
+          <input type="email" placeholder="creator@pulsestudio.app" class="w-full bg-gray-900 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 mb-1">Password</label>
+          <input type="password" placeholder="••••••••" class="w-full bg-gray-900 border border-gray-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <button onclick="navTo('studio')" class="w-full py-3 rounded-xl accent-gradient font-semibold text-sm shadow-lg shadow-indigo-500/25">
+          Sign In / Continue
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Bottom Tab Navigation Bar -->
+  <nav class="glass-nav fixed bottom-0 left-0 right-0 z-40 border-t border-gray-800 px-6 py-2">
+    <div class="max-w-md mx-auto flex justify-between items-center">
+      <button onclick="navTo('studio')" id="tab-studio" class="nav-btn nav-active flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors">
+        <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
+        <span class="text-[10px] font-semibold">Studio</span>
+      </button>
+
+      <button onclick="navTo('projects')" id="tab-projects" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors">
+        <i class="fa-solid fa-folder-open text-lg"></i>
+        <span class="text-[10px] font-semibold">Projects</span>
+      </button>
+
+      <button onclick="navTo('community')" id="tab-community" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors">
+        <i class="fa-solid fa-compass text-lg"></i>
+        <span class="text-[10px] font-semibold">Feed</span>
+      </button>
+
+      <button onclick="navTo('account')" id="tab-account" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors">
+        <i class="fa-solid fa-sliders text-lg"></i>
+        <span class="text-[10px] font-semibold">Settings</span>
+      </button>
+    </div>
+  </nav>
+
+  <script src="app.js"></script>
 </body>
 </html>

@@ -1,734 +1,319 @@
-
-const STORAGE = {
-  users: 'pulse-users',
-  user: 'pulse-user',
-  projects: 'pulse-projects',
-  saved: 'pulse-saved',
-  feed: 'pulse-feed'
-};
-
-const DEFAULT_USERS = [
-  { id: 1, name: 'Demo Creator', email: 'demo@pulse.app', password: 'demo123' }
-];
-
-const DEFAULT_FEED = [
-  {
-    id: 1,
-    userName: 'Demo Creator',
-    time: '2m ago',
-    tag: 'Trending',
-    title: 'The 10-second hook everyone ignores',
-    copy: 'Small shift, huge retention. This idea turns a generic tip into a direct challenge with a clear payoff.',
-    likes: 124,
-    comments: 18,
-    liked: false,
-    saved: false
-  },
-  {
-    id: 2,
-    userName: 'Ava Bloom',
-    time: '18m ago',
-    tag: 'Editor pick',
-    title: 'How we cut boring intros without losing trust',
-    copy: 'Use a sharp hook, then show proof. The audience stays because the value arrives immediately.',
-    likes: 96,
-    comments: 12,
-    liked: true,
-    saved: true
-  },
-  {
-    id: 3,
-    userName: 'Jay Lee',
-    time: '1h ago',
-    tag: 'Launch',
-    title: 'A creator workflow that feels social, not robotic',
-    copy: 'Map script, hooks and CTA in one sequence so the content feels native to the feed instead of staged.',
-    likes: 142,
-    comments: 10,
-    liked: false,
-    saved: false
-  }
-];
-
+﻿// Pulse Studio — App Engine & State
 const state = {
-  currentUser: JSON.parse(localStorage.getItem(STORAGE.user) || 'null'),
-  users: JSON.parse(localStorage.getItem(STORAGE.users) || JSON.stringify(DEFAULT_USERS)),
-  projects: JSON.parse(localStorage.getItem(STORAGE.projects) || '[]'),
-  saved: JSON.parse(localStorage.getItem(STORAGE.saved) || '[]'),
-  feed: JSON.parse(localStorage.getItem(STORAGE.feed) || JSON.stringify(DEFAULT_FEED)),
-  currentProjectId: null,
-  mode: 'ideas',
-  view: 'auth',
-  viewHistory: []
+  currentView: 'studio',
+  history: ['studio'],
+  apiKey: localStorage.getItem('PULSE_GEMINI_KEY') || '',
+  projects: JSON.parse(localStorage.getItem('PULSE_PROJECTS') || '[]'),
+  feed: JSON.parse(localStorage.getItem('PULSE_FEED') || '[]'),
+  currentOutput: null
 };
 
-const modes = {
-  ideas: {
-    title: 'Viral idea generator',
-    label: 'What are you exploring?',
-    placeholder: 'e.g. morning routine, AI tools...',
-    button: 'Generate',
-    helper: 'Runs locally with sample intelligence. No API key required.'
-  },
-  script: {
-    title: 'Full script writer',
-    label: 'What is your video about?',
-    placeholder: 'e.g. 5 habits that changed my life...',
-    button: 'Write script',
-    helper: 'Build a punchy script with hook, body, visual cues and CTA.'
-  },
-  captions: {
-    title: 'Captions & hooks',
-    label: 'What is the video topic?',
-    placeholder: 'e.g. beginner morning workout...',
-    button: 'Create captions',
-    helper: 'Get ready-to-post hooks, captions and calls to action.'
-  },
-  hashtags: {
-    title: 'Hashtag direction',
-    label: 'Describe the video',
-    placeholder: 'e.g. budget meals for students...',
-    button: 'Find tags',
-    helper: 'A balanced mix of broad, medium and niche discovery tags.'
-  }
-};
-
-const $ = (id) => document.getElementById(id);
-
-function persist() {
-  localStorage.setItem(STORAGE.users, JSON.stringify(state.users));
-  localStorage.setItem(STORAGE.projects, JSON.stringify(state.projects));
-  localStorage.setItem(STORAGE.saved, JSON.stringify(state.saved));
-  localStorage.setItem(STORAGE.feed, JSON.stringify(state.feed));
-  if (state.currentUser) {
-    localStorage.setItem(STORAGE.user, JSON.stringify(state.currentUser));
-  } else {
-    localStorage.removeItem(STORAGE.user);
-  }
+// Default seed feed items if empty
+if (state.feed.length === 0) {
+  state.feed = [
+    {
+      id: 'f1',
+      topic: 'Minimalist Desk Setup 2026',
+      author: '@tech_vibes',
+      likes: 42,
+      script: "[0-3s Hook]\nStop scrolling if your desk is messy.\n\n[3-15s Body]\nHere are 3 aesthetic gadgets that transformed my productivity space...\n\n[Call to Action]\nSave this video for setup inspo!",
+      caption: "Desk upgrades you actually need ✨ #techdesk #minimalism #workspace"
+    },
+    {
+      id: 'f2',
+      topic: 'Moroccan Mint Tea Story',
+      author: '@atlas_explores',
+      likes: 89,
+      script: "[0-3s Hook]\nWhy do Moroccans pour tea from so high up?\n\n[3-15s Body]\nIt creates a foam layer called the 'regha', locking in aroma and cooling the tea...",
+      caption: "The secret science of Moroccan hospitality 🍵 #morocco #travel #teatime"
+    }
+  ];
+  localStorage.setItem('PULSE_FEED', JSON.stringify(state.feed));
 }
 
-function toast(message) {
-  const el = $('toast');
-  if (!el) return;
-  el.textContent = message;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2200);
-}
+// DOM Elements
+const btnBack = document.getElementById('btnBack');
+const btnHome = document.getElementById('btnHome');
+const apiKeyStatusDot = document.getElementById('apiKeyStatusDot');
+const keyWarningBanner = document.getElementById('keyWarningBanner');
+const accountApiKeyInput = document.getElementById('accountApiKeyInput');
+const btnSaveAccountKey = document.getElementById('btnSaveAccountKey');
 
-function showView(name, options = {}) {
-  if (options.record !== false && state.view !== name) {
-    state.viewHistory.push(state.view);
-  }
-  state.view = name;
-  document.querySelectorAll('[data-view]').forEach((view) => {
-    view.classList.toggle('hidden', view.dataset.view !== name);
+const studioForm = document.getElementById('studioForm');
+const generateBtn = document.getElementById('generateBtn');
+const resultsContainer = document.getElementById('resultsContainer');
+const scriptOutput = document.getElementById('scriptOutput');
+const captionOutput = document.getElementById('captionOutput');
+const btnSaveProject = document.getElementById('btnSaveProject');
+const btnPostToFeed = document.getElementById('btnPostToFeed');
+
+// Initialization
+document.addEventListener('DOMContentLoaded', () => {
+  updateApiKeyUI();
+  renderProjects();
+  renderCommunityFeed();
+
+  // Route back / home event listeners
+  btnBack.addEventListener('click', goBack);
+  btnHome.addEventListener('click', () => navTo('studio', false));
+
+  // Key save handler
+  btnSaveAccountKey.addEventListener('click', () => {
+    const val = accountApiKeyInput.value.trim();
+    if (val) {
+      state.apiKey = val;
+      localStorage.setItem('PULSE_GEMINI_KEY', val);
+      updateApiKeyUI();
+      alert('Gemini API Key saved successfully!');
+    }
   });
 
-  if (name === 'dashboard' && state.currentUser) {
-    loadDashboard();
-  }
-  if (name === 'account' && state.currentUser) {
-    loadAccount();
-  }
-}
+  // Generator submission handler
+  studioForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-function goHome() {
-  state.viewHistory = [];
-  if (state.currentUser) {
-    showView('dashboard', { record: false });
-    loadDashboard();
-    return;
+    if (!state.apiKey) {
+      alert('Please enter your Gemini API Key in Settings first.');
+      navTo('account');
+      return;
+    }
+
+    const topic = document.getElementById('topicInput').value;
+    const audience = document.getElementById('audienceInput').value || 'General Audience';
+    const tone = document.getElementById('toneSelect').value;
+
+    generateBtn.disabled = true;
+    generateBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Generating Content...</span>`;
+    resultsContainer.classList.add('hidden');
+
+    try {
+      const data = await generateStudioResults(topic, audience, tone);
+      state.currentOutput = { id: Date.now().toString(), topic, audience, tone, ...data };
+
+      scriptOutput.textContent = data.script;
+      captionOutput.textContent = `${data.caption}\n\n${data.hashtags.join(' ')}`;
+
+      resultsContainer.classList.remove('hidden');
+      resultsContainer.classList.add('flex');
+      resultsContainer.scrollIntoView({ behavior: 'smooth' });
+    } catch (err) {
+      alert(`Generation failed: ${err.message}`);
+    } finally {
+      generateBtn.disabled = false;
+      generateBtn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> <span>Generate Content Bundle</span>`;
+    }
+  });
+
+  // Save to Projects Handler
+  btnSaveProject.addEventListener('click', () => {
+    if (!state.currentOutput) return;
+    state.projects.unshift(state.currentOutput);
+    localStorage.setItem('PULSE_PROJECTS', JSON.stringify(state.projects));
+    renderProjects();
+    alert('Saved to Projects!');
+  });
+
+  // Share to Community Feed Handler
+  btnPostToFeed.addEventListener('click', () => {
+    if (!state.currentOutput) return;
+    const feedItem = {
+      id: Date.now().toString(),
+      topic: state.currentOutput.topic,
+      author: '@you',
+      likes: 1,
+      script: state.currentOutput.script,
+      caption: `${state.currentOutput.caption} ${state.currentOutput.hashtags.join(' ')}`
+    };
+    state.feed.unshift(feedItem);
+    localStorage.setItem('PULSE_FEED', JSON.stringify(state.feed));
+    renderCommunityFeed();
+    alert('Published to Community Feed!');
+    navTo('community');
+  });
+});
+
+// Single Page Application (SPA) View Router
+function navTo(viewName, addToHistory = true) {
+  if (state.currentView === viewName) return;
+
+  // Toggle visible views
+  document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
+  const targetView = document.getElementById(`view-${viewName}`);
+  if (targetView) targetView.classList.remove('hidden');
+
+  // Update tab highlights
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('nav-active'));
+  const activeTab = document.getElementById(`tab-${viewName}`);
+  if (activeTab) activeTab.classList.add('nav-active');
+
+  // History management for Back button
+  if (addToHistory) {
+    state.history.push(viewName);
   }
-  showView('auth', { record: false });
-  setAuthMode('login');
-  prefillDemo();
+  state.currentView = viewName;
+
+  // Show/Hide back button based on navigation stack
+  if (state.history.length > 1) {
+    btnBack.classList.remove('hidden');
+  } else {
+    btnBack.classList.add('hidden');
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function goBack() {
-  const previousView = state.viewHistory.pop();
-  if (!previousView) return toast('You are already at the first page.');
-  showView(previousView, { record: false });
-  if (previousView === 'dashboard') loadDashboard();
-  if (previousView === 'account') loadAccount();
-  if (previousView === 'project') loadProjectEditor();
-}
-
-function setAuthMode(mode) {
-  const loginCard = $('authFormView');
-  const signupCard = $('signupFormView');
-  if (!loginCard || !signupCard) return;
-  if (mode === 'signup') {
-    loginCard.classList.add('hidden');
-    signupCard.classList.remove('hidden');
-  } else {
-    loginCard.classList.remove('hidden');
-    signupCard.classList.add('hidden');
+  if (state.history.length > 1) {
+    state.history.pop();
+    const previousView = state.history[state.history.length - 1];
+    navTo(previousView, false);
   }
 }
 
-function slugify(value = '') {
-  return String(value).toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 18) || 'creator';
+// API Key UI State update
+function updateApiKeyUI() {
+  if (state.apiKey) {
+    apiKeyStatusDot.classList.replace('bg-amber-500', 'bg-emerald-500');
+    keyWarningBanner.classList.add('hidden');
+    accountApiKeyInput.value = state.apiKey;
+  } else {
+    apiKeyStatusDot.classList.replace('bg-emerald-500', 'bg-amber-500');
+    keyWarningBanner.classList.remove('hidden');
+  }
 }
 
-function buildCard(title, body, tag = '') {
-  return `
-    <article class="result-card">
-      <h3>${title}</h3>
-      ${body}
-      ${tag ? `<span class="card-tag">${tag}</span>` : ''}
-    </article>
-  `;
-}
+// Gemini API Generation Logic
+async function generateStudioResults(topic, audience, tone) {
+  const prompt = `
+You are an expert TikTok & Instagram Reels strategist.
+Generate a high-converting content bundle for:
+Topic: ${topic}
+Target Audience: ${audience}
+Tone: ${tone}
 
-function renderStudioMode() {
-  const mode = modes[state.mode];
-  if (!mode) return;
-  const title = $('modeTitle');
-  const label = $('topicLabel');
-  const input = $('topicInput');
-  const button = $('generateButton');
-  const helper = $('helperText');
-  if (title) title.textContent = mode.title;
-  if (label) label.textContent = mode.label;
-  if (input) input.placeholder = mode.placeholder;
-  if (button) button.innerHTML = `${mode.button} <span>?</span>`;
-  if (helper) helper.textContent = mode.helper;
+Return strict JSON ONLY matching this format (no markdown code fences):
+{
+  "script": "[0-3s Hook]\\n(Visual Context)\\nVoiceover text...\\n\\n[3-15s Body]\\n(Visual Context)\\nVoiceover text...\\n\\n[Call to Action]\\nVoiceover text...",
+  "caption": "Catchy main post caption...",
+  "hashtags": ["#tag1", "#tag2", "#tag3", "#tag4", "#tag5"]
 }
+`;
 
-function addResultActions(container) {
-  if (!container) return;
-  container.querySelectorAll('.result-card').forEach((card, index) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'save-card';
-    button.textContent = 'Save & post';
-    button.addEventListener('click', () => {
-      const html = card.outerHTML;
-      const entry = {
-        id: Date.now() + index,
-        userName: state.currentUser ? state.currentUser.name : 'You',
-        time: 'just now',
-        tag: state.mode.toUpperCase(),
-        title: card.querySelector('h3')?.textContent || 'New concept',
-        copy: card.innerText.replace(/\s+/g, ' ').trim().slice(0, 180),
-        likes: 0,
-        comments: 0,
-        liked: false,
-        saved: true,
-        html
-      };
-      state.feed.unshift(entry);
-      state.saved.push(entry);
-      persist();
-      toast('Saved to your feed.');
-      renderDashboardFeed();
-    });
-    card.appendChild(button);
-  });
-}
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${state.apiKey}`;
 
-function renderGeneratedCards(cards) {
-  const container = $('results');
-  if (!container) return;
-  container.innerHTML = cards.join('');
-  addResultActions(container);
-}
-
-async function generateWithClaude(topic, niche, tone, duration) {
-  const response = await fetch('/api/ai/generate', {
+  const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ mode: state.mode, topic, niche, tone, duration })
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }]
+    })
   });
-  if (!response.ok) throw new Error('Claude is unavailable. Showing local demo results.');
-  const payload = await response.json();
-  if (!payload.success || !payload.text) throw new Error('Claude returned no content.');
-  return payload.text.split(/\n(?=(?:Option|\d+\.|[A-Z][^\n]{2,50}:))/).filter(Boolean).slice(0, 3).map((section, index) => {
-    const lines = section.trim().split('\n').filter(Boolean);
-    const title = lines.shift() || `Claude option ${index + 1}`;
-    return buildCard(title.replace(/^\d+[.)]\s*/, ''), `<p>${lines.join('<br>')}</p>`, 'CLAUDE');
-  });
-}
 
-async function generateStudioResults() {
-  const topic = ($('topicInput')?.value || '').trim() || 'your niche';
-  const niche = $('nicheSelect')?.value || 'Creator growth';
-  const tone = $('toneSelect')?.value || 'Energetic & Fun';
-  const duration = $('durationSelect')?.value || '15 sec';
-  const generateButton = $('generateButton');
-  if (generateButton) {
-    generateButton.disabled = true;
-    generateButton.textContent = 'Creating...';
+  if (!response.ok) {
+    const errData = await response.json();
+    throw new Error(errData.error?.message || 'API request failed');
   }
 
-  try {
-    const claudeCards = await generateWithClaude(topic, niche, tone, duration);
-    renderGeneratedCards(claudeCards);
-    toast('Created with Claude.');
+  const result = await response.json();
+  const rawText = result.candidates[0].content.parts[0].text;
+  const cleanedText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+  return JSON.parse(cleanedText);
+}
+
+// Render Functions
+function renderProjects() {
+  const container = document.getElementById('projectsList');
+  const countBadge = document.getElementById('projectCount');
+  countBadge.textContent = `${state.projects.length} items`;
+
+  if (state.projects.length === 0) {
+    container.innerHTML = `
+      <div class="glass-card rounded-2xl p-6 text-center text-gray-400">
+        <i class="fa-solid fa-folder-open text-2xl mb-2 text-gray-600"></i>
+        <p class="text-xs">No saved projects yet. Generate scripts in Studio and save them here.</p>
+      </div>`;
     return;
-  } catch (error) {
-    if (error.message !== 'Claude is unavailable. Showing local demo results.') toast('Claude unavailable. Using local demo.');
-  } finally {
-    if (generateButton) {
-      generateButton.disabled = false;
-      renderStudioMode();
-    }
   }
 
-  const results = {
-    ideas: [
-      buildCard('The unexpected 10-second rule', `<p><strong>Hook:</strong> ?You are wasting your first 10 seconds.?</p><p><strong>Concept:</strong> Show the fastest win for ${topic}, then reveal the tiny rule behind it.</p><p><strong>Format:</strong> Face-to-camera + jump cuts</p>`, 'HIGH RETENTION'),
-      buildCard('Do this before you scroll', `<p><strong>Hook:</strong> ?Before your next scroll, try this.?</p><p><strong>Why it works:</strong> It feels direct, useful and immediate.</p><p><strong>Voice:</strong> ${tone} ? ${duration}</p>`, 'COMMENT BAIT'),
-      buildCard('A beginner honest reset', `<p><strong>Hook:</strong> ?I wish someone told me this on day one.?</p><p><strong>Concept:</strong> Three mistakes, one fix and one question for the audience.</p><p><strong>Lane:</strong> ${niche}</p>`, 'SAVE-WORTHY')
-    ],
-    script: [
-      buildCard('Hook ? 0:00?0:03', `<p>?If you are trying to improve ${topic}, stop doing it the complicated way.?</p><p class="helper-text">[VISUAL: Start close to camera, text lands on first beat]</p>`, `${duration} SCRIPT`),
-      buildCard('Main beat ? 0:03?0:24', `<p>?Here is the simple version. First, name the one result you want. Then remove the step that feels busy. Finally, repeat the useful part until it feels boring.?</p><p class="helper-text">[VISUAL: Three quick numbered cuts with large text]</p>`, 'STRUCTURE'),
-      buildCard('CTA ? final 3 seconds', `<p>?Send this to someone who needs a simpler plan, and follow for more ${niche} ideas.?</p>`, 'CALL TO ACTION')
-    ],
-    captions: [
-      buildCard('Hook 01', `<p><strong>?The part nobody tells you about ${topic}.?</strong></p><p>Small shift, big difference. Save this for your next reset.</p><p class="helper-text">CTA: ?Which step are you trying first??</p>`, 'UNDER 150 CHARACTERS'),
-      buildCard('Hook 02', `<p><strong>?I tested the popular advice so you do not have to.?</strong></p><p>Here is what actually worked, without the extra noise.</p><p class="helper-text">CTA: ?Send this to your accountability friend.?</p>`, 'RELATABLE'),
-      buildCard('Hook 03', `<p><strong>?A realistic ${tone.toLowerCase()} take on ${topic}.?</strong></p><p>No perfect setup. Just a better next move.</p><p class="helper-text">CTA: ?Follow for the next part.?</p>`, 'OPTIMIZED')
-    ],
-    hashtags: [
-      buildCard('Broad reach', `<div class="tag-cloud"><span>#fyp</span><span>#tiktoktips</span><span>#viralvideo</span><span>#creator</span><span>#content</span></div>`, 'DISCOVERY'),
-      buildCard('Medium competition', `<div class="tag-cloud"><span>#${slugify(niche)}</span><span>#${slugify(tone)}</span><span>#creatorideas</span><span>#postingtips</span><span>#growwithme</span></div>`, 'TARGETED'),
-      buildCard('Niche signal', `<div class="tag-cloud"><span>#${slugify(topic)}</span><span>#beginnercreator</span><span>#dailyprogress</span><span>#smartcontent</span></div><p class="helper-text">Mix 2 broad, 3 medium and 3 niche tags. Keep the caption natural.</p>`, 'SEARCH READY')
-    ]
-  };
-
-  const cards = results[state.mode] || results.ideas;
-  renderGeneratedCards(cards);
+  container.innerHTML = state.projects.map((p, idx) => `
+    <div class="glass-card rounded-2xl p-4 flex flex-col gap-2">
+      <div class="flex justify-between items-start">
+        <h4 class="font-bold text-xs text-indigo-300">${escapeHtml(p.topic)}</h4>
+        <button onclick="deleteProject(${idx})" class="text-gray-500 hover:text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
+      </div>
+      <p class="text-[11px] text-gray-400 line-clamp-2 bg-gray-900/60 p-2 rounded-lg font-mono">${escapeHtml(p.script)}</p>
+      <div class="flex justify-between items-center text-[10px] text-gray-500 pt-1">
+        <span>${p.tone}</span>
+        <button onclick="copyText('${escapeJsString(p.script)}')" class="text-indigo-400 font-semibold"><i class="fa-solid fa-copy mr-1"></i>Copy Script</button>
+      </div>
+    </div>
+  `).join('');
 }
 
-function renderDashboardFeed() {
-  const container = $('projectList');
-  if (!container) return;
-  const projects = state.projects.filter((project) => project.userId === state.currentUser?.id);
-  const feedMarkup = state.feed.map((post) => `
-    <article class="social-card" style="padding: 14px 16px; border: 1px solid rgba(148,163,184,0.18); border-radius: 18px; background: rgba(15,23,42,0.75); margin-top: 12px;">
-      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-        <div style="width:34px; height:34px; border-radius:50%; background: linear-gradient(135deg, #8b5cf6, #22d3ee); display:flex; align-items:center; justify-content:center; font-weight:800; color:white;">${(post.userName || 'Y').charAt(0).toUpperCase()}</div>
-        <div style="flex:1; min-width:0;">
-          <div style="font-weight:700;">${post.userName}</div>
-          <small style="color: var(--muted);">${post.time}</small>
+function renderCommunityFeed() {
+  const container = document.getElementById('communityFeedList');
+  container.innerHTML = state.feed.map(item => `
+    <div class="glass-card rounded-2xl p-4 flex flex-col gap-3">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <div class="w-6 h-6 rounded-full bg-purple-600/30 text-purple-300 flex items-center justify-center text-[10px] font-bold">
+            ${item.author.charAt(1).toUpperCase()}
+          </div>
+          <span class="text-xs font-semibold text-gray-300">${item.author}</span>
         </div>
-        <span class="pill">${post.tag}</span>
+        <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30">${item.topic}</span>
       </div>
-      <h3 style="margin:0 0 8px; font-size: 1.02rem;">${post.title}</h3>
-      <p style="margin:0 0 10px; color: var(--muted); line-height:1.55;">${post.copy}</p>
-      <div style="display:flex; gap:8px; flex-wrap: wrap;">
-        <button class="secondary-btn" data-like="${post.id}">${post.liked ? '? Liked' : '? Like'} ${post.likes}</button>
-        <button class="secondary-btn" data-save="${post.id}">${post.saved ? 'Saved' : 'Save'}</button>
-        <button class="secondary-btn" data-share="${post.id}">Share</button>
+      <p class="text-xs text-gray-300 font-mono bg-gray-900/60 p-2.5 rounded-xl border border-gray-800">${escapeHtml(item.script)}</p>
+      <p class="text-[11px] text-gray-400">${escapeHtml(item.caption)}</p>
+      <div class="flex justify-between items-center pt-1 border-t border-gray-800/60 text-xs">
+        <button onclick="likeFeedItem('${item.id}')" class="text-gray-400 hover:text-pink-400 flex items-center space-x-1">
+          <i class="fa-solid fa-heart text-pink-500"></i>
+          <span>${item.likes}</span>
+        </button>
+        <button onclick="forkScript('${escapeJsString(item.topic)}')" class="text-xs text-indigo-400 font-semibold flex items-center space-x-1">
+          <i class="fa-solid fa-bolt"></i>
+          <span>Use Topic in Studio</span>
+        </button>
       </div>
-    </article>
-  `).join('');
-
-  const projectMarkup = projects.length ? projects.map((project) => `
-    <div class="project-item" style="margin-top:12px;">
-      <div>
-        <strong>${project.name}</strong><br>
-        <span style="color: var(--muted); font-size: 0.74rem;">${project.type} ? ${project.topic || 'No topic'}</span>
-      </div>
-      <div class="project-actions">
-        <span class="pill">${project.type}</span>
-        <button class="secondary-btn" data-open="${project.id}">Open</button>
-        <button class="secondary-btn" data-export="${project.id}">Export</button>
-        <button class="secondary-btn" data-share="${project.id}">Share</button>
-        <button class="danger" data-delete="${project.id}">Delete</button>
-      </div>
-    </div>
-  `).join('') : '<div class="panel"><div class="small-label">No projects yet</div></div>';
-
-  container.innerHTML = `
-    <div class="panel">
-      <div class="small-label">Community feed</div>
-      ${feedMarkup || '<div class="panel"><div class="small-label">No posts yet</div></div>'}
-    </div>
-    <div class="panel" style="margin-top: 16px;">
-      <div class="small-label">Your projects</div>
-      ${projectMarkup}
-    </div>
-  `;
-
-  container.querySelectorAll('[data-like]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const post = state.feed.find((item) => String(item.id) === button.dataset.like);
-      if (!post) return;
-      post.liked = !post.liked;
-      post.likes += post.liked ? 1 : -1;
-      persist();
-      renderDashboardFeed();
-    });
-  });
-
-  container.querySelectorAll('[data-save]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const id = Number(button.dataset.save);
-      const post = state.feed.find((item) => item.id === id);
-      if (!post) return;
-      post.saved = !post.saved;
-      state.saved = post.saved ? [...new Set([...state.saved, id])] : state.saved.filter((item) => item !== id);
-      persist();
-      renderDashboardFeed();
-      toast(post.saved ? 'Saved to your library.' : 'Removed from saved.');
-    });
-  });
-
-  container.querySelectorAll('[data-share]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const post = state.feed.find((item) => String(item.id) === button.dataset.share);
-      if (!post) return;
-      const shareText = `${post.title} ? ${post.copy}`;
-      if (navigator.share) {
-        navigator.share({ title: post.title, text: shareText }).catch(() => {});
-      } else {
-        toast(`Share: ${shareText.slice(0, 80)}...`);
-      }
-    });
-  });
-
-  container.querySelectorAll('[data-open]').forEach((button) => {
-    button.addEventListener('click', () => {
-      state.currentProjectId = Number(button.dataset.open);
-      showView('project');
-      loadProjectEditor();
-    });
-  });
-
-  container.querySelectorAll('[data-export]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const project = projects.find((item) => String(item.id) === button.dataset.export);
-      if (!project) return;
-      const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `${slugify(project.name || 'project')}.json`;
-      link.click();
-      toast('Project exported.');
-    });
-  });
-
-  container.querySelectorAll('[data-delete]').forEach((button) => {
-    button.addEventListener('click', () => {
-      if (!confirm('Delete this project?')) return;
-      const projectId = Number(button.dataset.delete);
-      state.projects = state.projects.filter((item) => item.id !== projectId);
-      persist();
-      renderDashboardFeed();
-      toast('Project deleted.');
-    });
-  });
-}
-
-function renderStats() {
-  const userProjects = state.currentUser ? state.projects.filter((project) => project.userId === state.currentUser.id) : [];
-  const statsGrid = $('statsGrid');
-  if (!statsGrid) return;
-  statsGrid.innerHTML = [
-    { label: 'Total projects', value: userProjects.length },
-    { label: 'Exports', value: Math.min(8, userProjects.length + 2) },
-    { label: 'Shares', value: Math.max(1, userProjects.length + 1) },
-    { label: 'This week', value: Math.max(3, userProjects.length + 2) }
-  ].map((item) => `
-    <div class="stat-card">
-      <div class="small-label">${item.label}</div>
-      <div style="font-size:2rem; font-weight:800; margin-top:10px;">${item.value}</div>
     </div>
   `).join('');
 }
 
-function getUserProjects(userId) {
-  return state.projects.filter((project) => project.userId === userId);
+// Global Helpers
+function deleteProject(index) {
+  state.projects.splice(index, 1);
+  localStorage.setItem('PULSE_PROJECTS', JSON.stringify(state.projects));
+  renderProjects();
 }
 
-function loadDashboard() {
-  if (!state.currentUser) {
-    showView('auth');
-    return;
-  }
-
-  renderStats();
-  renderDashboardFeed();
-}
-
-function loadProjectEditor() {
-  if (!state.currentUser || !state.currentProjectId) return;
-  const project = state.projects.find((item) => item.id === state.currentProjectId && item.userId === state.currentUser.id);
-  if (!project) return;
-
-  if ($('projectTitle')) $('projectTitle').textContent = project.name || 'Project';
-  if ($('editorName')) $('editorName').value = project.name || '';
-  if ($('editorType')) $('editorType').value = project.type || 'ideas';
-  if ($('editorTopic')) $('editorTopic').value = project.topic || '';
-  if ($('editorNiche')) $('editorNiche').value = project.niche || '';
-  if ($('editorTone')) $('editorTone').value = project.tone || '';
-  if ($('editorDuration')) $('editorDuration').value = project.duration || '';
-  if ($('editorPrompt')) $('editorPrompt').value = project.prompt || '';
-
-  const blocksContainer = $('editorContent');
-  if (blocksContainer) {
-    const blocks = Array.isArray(project.content) ? project.content : [];
-    blocksContainer.innerHTML = blocks.length ? blocks.map((block, index) => `
-      <div class="content-block">
-        <small>Block ${index + 1}</small>
-        <input data-title="${index}" value="${block.title || ''}" />
-        <textarea data-body="${index}">${block.body || ''}</textarea>
-        <input data-tag="${index}" value="${block.tag || ''}" />
-      </div>
-    `).join('') : '<div class="content-block"><small>No content yet</small></div>';
+function likeFeedItem(id) {
+  const item = state.feed.find(f => f.id === id);
+  if (item) {
+    item.likes += 1;
+    localStorage.setItem('PULSE_FEED', JSON.stringify(state.feed));
+    renderCommunityFeed();
   }
 }
 
-function loadAccount() {
-  if (!state.currentUser) {
-    showView('auth');
-    return;
-  }
-
-  const userProjects = getUserProjects(state.currentUser.id);
-  if ($('accountName')) $('accountName').textContent = state.currentUser.name;
-  if ($('accountEmail')) $('accountEmail').textContent = state.currentUser.email;
-  if ($('accountProjects')) $('accountProjects').textContent = String(userProjects.length);
-  if ($('accountExports')) $('accountExports').textContent = String(Math.min(9, userProjects.length + 2));
-  if ($('accountActive')) $('accountActive').textContent = 'Active';
+function forkScript(topic) {
+  document.getElementById('topicInput').value = topic;
+  navTo('studio');
 }
 
-function saveProjectFromDashboard() {
-  if (!state.currentUser) return;
-  const payload = {
-    id: Date.now(),
-    userId: state.currentUser.id,
-    name: ($('projectName')?.value || '').trim() || 'Untitled project',
-    type: $('projectType')?.value || 'ideas',
-    topic: $('projectTopic')?.value || '',
-    niche: $('projectNiche')?.value || '',
-    tone: $('projectTone')?.value || 'Energetic & Fun',
-    duration: $('projectDuration')?.value || '15 sec',
-    prompt: $('projectPrompt')?.value || '',
-    content: [{ title: 'Saved idea', body: 'Project created from dashboard.', tag: 'CREATED' }]
-  };
-
-  state.projects.unshift(payload);
-  persist();
-  toast('Project saved.');
-  if ($('projectName')) $('projectName').value = '';
-  if ($('projectTopic')) $('projectTopic').value = '';
-  if ($('projectNiche')) $('projectNiche').value = '';
-  if ($('projectTone')) $('projectTone').value = '';
-  if ($('projectDuration')) $('projectDuration').value = '';
-  if ($('projectPrompt')) $('projectPrompt').value = '';
-  loadDashboard();
+function copyToClipboard(elementId) {
+  const text = document.getElementById(elementId).textContent;
+  copyText(text);
 }
 
-function saveProjectEditor() {
-  if (!state.currentUser || !state.currentProjectId) return;
-  const project = state.projects.find((item) => item.id === state.currentProjectId && item.userId === state.currentUser.id);
-  if (!project) return;
-
-  const blocks = Array.from(document.querySelectorAll('.content-block')).map((block) => ({
-    title: block.querySelector('[data-title]')?.value || '',
-    body: block.querySelector('[data-body]')?.value || '',
-    tag: block.querySelector('[data-tag]')?.value || ''
-  }));
-
-  project.name = ($('editorName')?.value || '').trim() || project.name;
-  project.type = $('editorType')?.value || project.type;
-  project.topic = $('editorTopic')?.value || '';
-  project.niche = $('editorNiche')?.value || '';
-  project.tone = $('editorTone')?.value || '';
-  project.duration = $('editorDuration')?.value || '';
-  project.prompt = $('editorPrompt')?.value || '';
-  project.content = blocks;
-
-  persist();
-  toast('Project updated.');
-  loadDashboard();
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
 }
 
-function addProjectBlock() {
-  const container = $('editorContent');
-  if (!container) return;
-  const count = document.querySelectorAll('.content-block').length;
-  container.insertAdjacentHTML('beforeend', `
-    <div class="content-block">
-      <small>Block ${count + 1}</small>
-      <input data-title="${count}" value="New idea" />
-      <textarea data-body="${count}">Add your content copy here.</textarea>
-      <input data-tag="${count}" value="NEW" />
-    </div>
-  `);
+function escapeHtml(str) {
+  return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-async function importProjectFile(event) {
-  const file = event.target.files && event.target.files[0];
-  if (!file) return;
-  try {
-    const parsed = JSON.parse(await file.text());
-    const payload = parsed.project || parsed;
-    const project = {
-      id: Date.now(),
-      userId: state.currentUser?.id || 1,
-      name: payload.name || file.name.replace(/\.json$/i, ''),
-      type: payload.type || 'ideas',
-      topic: payload.topic || '',
-      niche: payload.niche || '',
-      tone: payload.tone || 'Energetic & Fun',
-      duration: payload.duration || '15 sec',
-      prompt: payload.prompt || '',
-      content: Array.isArray(payload.content) ? payload.content : []
-    };
-
-    state.projects.unshift(project);
-    persist();
-    loadDashboard();
-    toast('Project imported.');
-  } catch (error) {
-    toast(error.message || 'Could not import project.');
-  } finally {
-    event.target.value = '';
-  }
+function escapeJsString(str) {
+  return (str || '').replace(/'/g, "\\'").replace(/\n/g, "\\n");
 }
-
-function handleLoginSubmit(event) {
-  event.preventDefault();
-  const email = ($('loginEmail')?.value || '').trim().toLowerCase();
-  const password = ($('loginPassword')?.value || '').trim();
-
-  const user = state.users.find((item) => item.email.toLowerCase() === email && item.password === password);
-  if (!user) {
-    toast('Invalid email or password.');
-    return;
-  }
-
-  state.currentUser = user;
-  persist();
-  showView('dashboard');
-}
-
-function handleSignupSubmit(event) {
-  event.preventDefault();
-  const name = ($('signupName')?.value || '').trim() || 'New Creator';
-  const email = ($('signupEmail')?.value || '').trim().toLowerCase();
-  const password = ($('signupPassword')?.value || '').trim();
-
-  if (!email || !password) {
-    toast('Please complete your account details.');
-    return;
-  }
-  if (state.users.some((user) => user.email.toLowerCase() === email)) {
-    toast('This email already exists.');
-    return;
-  }
-
-  const user = { id: Date.now(), name, email, password };
-  state.users.push(user);
-  state.currentUser = user;
-  persist();
-  showView('dashboard');
-}
-
-function prefillDemo() {
-  const loginEmail = $('loginEmail');
-  const loginPassword = $('loginPassword');
-  if (loginEmail) loginEmail.value = 'demo@pulse.app';
-  if (loginPassword) loginPassword.value = 'demo123';
-}
-
-function bindStudio() {
-  document.querySelectorAll('.mode-tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.mode-tab').forEach((item) => item.classList.remove('active'));
-      tab.classList.add('active');
-      state.mode = tab.dataset.mode;
-      renderStudioMode();
-    });
-  });
-
-  const generateButton = $('generateButton');
-  if (generateButton) generateButton.addEventListener('click', generateStudioResults);
-
-  const topicInput = $('topicInput');
-  if (topicInput) topicInput.addEventListener('keydown', (event) => { if (event.key === 'Enter') generateStudioResults(); });
-
-  const settingsButton = $('settingsButton');
-  if (settingsButton) settingsButton.addEventListener('click', () => toast('Demo mode is ready. No API key needed.'));
-
-  const savedButton = $('savedButton');
-  if (savedButton) savedButton.addEventListener('click', () => {
-    const container = $('results');
-    if (!container) return;
-    const saved = state.saved.length ? state.saved : getSavedItems();
-    container.innerHTML = saved.length ? saved.map((item) => item.html || buildCard(item.title, `<p>${item.copy}</p>`, item.tag)).join('') : buildCard('Nothing saved yet', '<p>Generate content and tap Save to keep it.</p>');
-  });
-
-  const infoButton = $('infoButton');
-  if (infoButton) infoButton.addEventListener('click', () => toast('Pulse Studio runs locally and stays mobile-first.'));
-
-  renderStudioMode();
-}
-
-function getSavedItems() {
-  return state.saved;
-}
-
-function bindApp() {
-  const loginForm = $('loginForm');
-  if (loginForm) loginForm.addEventListener('submit', handleLoginSubmit);
-
-  const signupForm = $('signupForm');
-  if (signupForm) signupForm.addEventListener('submit', handleSignupSubmit);
-
-  if ($('showSignupBtn')) $('showSignupBtn').addEventListener('click', () => setAuthMode('signup'));
-  if ($('showLoginBtn')) $('showLoginBtn').addEventListener('click', () => setAuthMode('login'));
-  if ($('openStudioBtn')) $('openStudioBtn').addEventListener('click', () => { showView('studio'); });
-  if ($('openStudioFromDashboard')) $('openStudioFromDashboard').addEventListener('click', () => { showView('studio'); });
-  if ($('globalBackButton')) $('globalBackButton').addEventListener('click', goBack);
-  if ($('globalHomeButton')) $('globalHomeButton').addEventListener('click', goHome);
-  if ($('openAccountBtn')) $('openAccountBtn').addEventListener('click', () => { showView('account'); loadAccount(); });
-  if ($('accountBackBtn')) $('accountBackBtn').addEventListener('click', () => { showView('dashboard'); loadDashboard(); });
-
-  document.querySelectorAll('#logoutBtn').forEach((button) => {
-    button.addEventListener('click', () => {
-      state.currentUser = null;
-      persist();
-      showView('auth');
-      setAuthMode('login');
-      prefillDemo();
-    });
-  });
-
-  const saveProjectBtn = $('saveProjectBtn');
-  if (saveProjectBtn) saveProjectBtn.addEventListener('click', saveProjectFromDashboard);
-
-  const editorSaveBtn = $('saveProjectEditorBtn');
-  if (editorSaveBtn) editorSaveBtn.addEventListener('click', saveProjectEditor);
-
-  const backBtn = $('backToDashboard');
-  if (backBtn) backBtn.addEventListener('click', () => { showView('dashboard'); loadDashboard(); });
-
-  const addBlockBtn = $('addBlockBtn');
-  if (addBlockBtn) addBlockBtn.addEventListener('click', addProjectBlock);
-
-  const importBtn = $('importProjectBtn');
-  if (importBtn) importBtn.addEventListener('click', () => $('importProjectFile')?.click());
-
-  const fileInput = $('importProjectFile');
-  if (fileInput) fileInput.addEventListener('change', importProjectFile);
-
-  bindStudio();
-}
-
-function initApp() {
-  if (!state.users.length) {
-    state.users = [...DEFAULT_USERS];
-  }
-  bindApp();
-  showView('auth');
-  setAuthMode('login');
-  prefillDemo();
-}
-
-document.addEventListener('DOMContentLoaded', initApp);
