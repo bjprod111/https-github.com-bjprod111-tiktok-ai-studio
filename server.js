@@ -116,6 +116,44 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Pulse Studio backend is running.' });
 });
 
+app.get('/api/ai/status', (req, res) => {
+  res.json({ success: true, connected: Boolean(process.env.ANTHROPIC_API_KEY) });
+});
+
+app.post('/api/ai/generate', async (req, res) => {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return res.status(503).json({ success: false, message: 'Claude is not configured on this server.' });
+  }
+
+  try {
+    const { mode = 'ideas', topic = 'your niche', niche = 'Creator growth', tone = 'Energetic & Fun', duration = '15 sec' } = req.body || {};
+    const prompt = `Create TikTok content for the topic "${String(topic).slice(0, 300)}". Mode: ${mode}. Niche: ${niche}. Tone: ${tone}. Duration: ${duration}. Return exactly three concise options. Each option must have a short title, a hook, useful content, and a CTA when appropriate. Use plain text with one option per section and no markdown tables.`;
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: process.env.ANTHROPIC_MODEL || 'claude-3-5-haiku-latest',
+        max_tokens: 900,
+        temperature: 0.7,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+      return res.status(response.status).json({ success: false, message: payload.error?.message || 'Claude request failed.' });
+    }
+    const text = Array.isArray(payload.content) ? payload.content.filter((item) => item.type === 'text').map((item) => item.text).join('\n') : '';
+    res.json({ success: true, text });
+  } catch (error) {
+    res.status(502).json({ success: false, message: error.message || 'Could not reach Claude.' });
+  }
+});
+
 app.post('/api/auth/signup', async (req, res) => {
   try {
     const { name, email, password } = req.body || {};

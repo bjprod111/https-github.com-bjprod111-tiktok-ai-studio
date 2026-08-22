@@ -47,6 +47,18 @@ The app uses a single-entry mobile experience, while switching between login, da
 
 The backend binds to `127.0.0.1` by default, so it is not shared with other devices on the local network. For any production backend deployment, set a strong `JWT_SECRET` environment variable and use HTTPS.
 
+### Optional Claude connection
+
+Claude is supported only through the local backend. Set your key in the server environment and never paste it into the app, GitHub, or chat:
+
+```powershell
+$env:ANTHROPIC_API_KEY = 'paste-your-key-in-this-terminal-only'
+$env:JWT_SECRET = 'use-a-long-random-local-secret'
+npm start
+```
+
+Check `http://127.0.0.1:3000/api/ai/status` to confirm whether Claude is connected. GitHub Pages intentionally uses the local demo fallback because static hosting cannot protect an API key.
+
 ## Publish for free with GitHub Pages
 
 GitHub Pages is the secure deployment option for the mobile browser studio. The workflow publishes only the static browser files; it does not publish the Node.js backend, SQLite database, dependencies or local transfer archive. It uses GitHub's HTTPS Pages hosting and does not require a tunnel to your computer.

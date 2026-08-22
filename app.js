@@ -227,11 +227,53 @@ function addResultActions(container) {
   });
 }
 
-function generateStudioResults() {
+function renderGeneratedCards(cards) {
+  const container = $('results');
+  if (!container) return;
+  container.innerHTML = cards.join('');
+  addResultActions(container);
+}
+
+async function generateWithClaude(topic, niche, tone, duration) {
+  const response = await fetch('/api/ai/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mode: state.mode, topic, niche, tone, duration })
+  });
+  if (!response.ok) throw new Error('Claude is unavailable. Showing local demo results.');
+  const payload = await response.json();
+  if (!payload.success || !payload.text) throw new Error('Claude returned no content.');
+  return payload.text.split(/\n(?=(?:Option|\d+\.|[A-Z][^\n]{2,50}:))/).filter(Boolean).slice(0, 3).map((section, index) => {
+    const lines = section.trim().split('\n').filter(Boolean);
+    const title = lines.shift() || `Claude option ${index + 1}`;
+    return buildCard(title.replace(/^\d+[.)]\s*/, ''), `<p>${lines.join('<br>')}</p>`, 'CLAUDE');
+  });
+}
+
+async function generateStudioResults() {
   const topic = ($('topicInput')?.value || '').trim() || 'your niche';
   const niche = $('nicheSelect')?.value || 'Creator growth';
   const tone = $('toneSelect')?.value || 'Energetic & Fun';
   const duration = $('durationSelect')?.value || '15 sec';
+  const generateButton = $('generateButton');
+  if (generateButton) {
+    generateButton.disabled = true;
+    generateButton.textContent = 'Creating...';
+  }
+
+  try {
+    const claudeCards = await generateWithClaude(topic, niche, tone, duration);
+    renderGeneratedCards(claudeCards);
+    toast('Created with Claude.');
+    return;
+  } catch (error) {
+    if (error.message !== 'Claude is unavailable. Showing local demo results.') toast('Claude unavailable. Using local demo.');
+  } finally {
+    if (generateButton) {
+      generateButton.disabled = false;
+      renderStudioMode();
+    }
+  }
 
   const results = {
     ideas: [
@@ -257,10 +299,7 @@ function generateStudioResults() {
   };
 
   const cards = results[state.mode] || results.ideas;
-  const container = $('results');
-  if (!container) return;
-  container.innerHTML = cards.join('');
-  addResultActions(container);
+  renderGeneratedCards(cards);
 }
 
 function renderDashboardFeed() {
