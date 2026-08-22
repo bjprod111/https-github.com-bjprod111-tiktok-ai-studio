@@ -1,4 +1,4 @@
-﻿// Pulse Studio — App Engine & State
+// Pulse Studio � App Engine & State
 const state = {
   currentView: 'studio',
   history: ['studio'],
@@ -17,7 +17,7 @@ if (state.feed.length === 0) {
       author: '@tech_vibes',
       likes: 42,
       script: "[0-3s Hook]\nStop scrolling if your desk is messy.\n\n[3-15s Body]\nHere are 3 aesthetic gadgets that transformed my productivity space...\n\n[Call to Action]\nSave this video for setup inspo!",
-      caption: "Desk upgrades you actually need ✨ #techdesk #minimalism #workspace"
+      caption: "Desk upgrades you actually need ? #techdesk #minimalism #workspace"
     },
     {
       id: 'f2',
@@ -25,7 +25,7 @@ if (state.feed.length === 0) {
       author: '@atlas_explores',
       likes: 89,
       script: "[0-3s Hook]\nWhy do Moroccans pour tea from so high up?\n\n[3-15s Body]\nIt creates a foam layer called the 'regha', locking in aroma and cooling the tea...",
-      caption: "The secret science of Moroccan hospitality 🍵 #morocco #travel #teatime"
+      caption: "The secret science of Moroccan hospitality ?? #morocco #travel #teatime"
     }
   ];
   localStorage.setItem('PULSE_FEED', JSON.stringify(state.feed));
@@ -199,7 +199,7 @@ Return strict JSON ONLY matching this format (no markdown code fences):
 }
 `;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${state.apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${state.apiKey}`;
 
   const response = await fetch(url, {
     method: 'POST',
