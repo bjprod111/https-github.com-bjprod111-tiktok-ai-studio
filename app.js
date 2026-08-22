@@ -152,6 +152,13 @@ function updateApiKeyUI() {
 }
 
 async function generateStudioResults(topic, audience, tone) {
+  // Candidate endpoints ordered by preference
+  const modelsToTry = [
+    'gemini-2.0-flash',
+    'gemini-2.5-flash',
+    'gemini-1.5-flash-latest'
+  ];
+
   const prompt = `
 You are an expert TikTok & Instagram Reels strategist.
 Generate a content bundle for:
@@ -167,27 +174,35 @@ Return strict JSON ONLY matching this format (no markdown code blocks):
 }
 `;
 
-  // Standard official stable endpoint
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${state.apiKey}`;
+  let lastError = null;
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }]
-    })
-  });
+  for (const model of modelsToTry) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${state.apiKey}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }]
+        })
+      });
 
-  if (!response.ok) {
-    const errData = await response.json();
-    throw new Error(errData.error?.message || 'API request failed');
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error?.message || `HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      const rawText = result.candidates[0].content.parts[0].text;
+      const cleanedText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+      return JSON.parse(cleanedText);
+    } catch (err) {
+      console.warn(`Model ${model} failed, attempting next fallback...`, err);
+      lastError = err;
+    }
   }
 
-  const result = await response.json();
-  const rawText = result.candidates[0].content.parts[0].text;
-  const cleanedText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-
-  return JSON.parse(cleanedText);
+  throw lastError || new Error('All model endpoints failed.');
 }
 
 function renderProjects() {
