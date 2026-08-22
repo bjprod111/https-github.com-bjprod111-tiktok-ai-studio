@@ -151,13 +151,35 @@ function updateApiKeyUI() {
   }
 }
 
+async function fetchAvailableModels() {
+  try {
+    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${state.apiKey}`;
+    const res = await fetch(listUrl);
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (data.models && Array.isArray(data.models)) {
+      return data.models
+        .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
+        .map(m => m.name.replace('models/', ''));
+    }
+  } catch (e) {
+    console.warn("Dynamic model discovery unavailable:", e);
+  }
+  return [];
+}
+
 async function generateStudioResults(topic, audience, tone) {
-  // Candidate endpoints ordered by preference
-  const modelsToTry = [
+  const discoveredModels = await fetchAvailableModels();
+  
+  const fallbackModels = [
     'gemini-2.0-flash',
     'gemini-2.5-flash',
-    'gemini-1.5-flash-latest'
+    'gemini-1.5-flash',
+    'gemini-1.5-flash-latest',
+    'gemini-1.5-pro'
   ];
+
+  const modelsToTry = [...new Set([...discoveredModels, ...fallbackModels])];
 
   const prompt = `
 You are an expert TikTok & Instagram Reels strategist.
@@ -178,6 +200,9 @@ Return strict JSON ONLY matching this format (no markdown code blocks):
 
   for (const model of modelsToTry) {
     try {
+      const badge = document.getElementById('activeModelBadge');
+      if (badge) badge.textContent = model;
+
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${state.apiKey}`;
       const response = await fetch(url, {
         method: 'POST',
@@ -197,12 +222,12 @@ Return strict JSON ONLY matching this format (no markdown code blocks):
       const cleanedText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
       return JSON.parse(cleanedText);
     } catch (err) {
-      console.warn(`Model ${model} failed, attempting next fallback...`, err);
+      console.warn(`Model ${model} failed, trying next available endpoint...`, err);
       lastError = err;
     }
   }
 
-  throw lastError || new Error('All model endpoints failed.');
+  throw lastError || new Error('No compatible Gemini model found for this API key.');
 }
 
 function renderProjects() {
