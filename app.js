@@ -1,4 +1,4 @@
-// Pulse Studio � App Engine & State
+﻿// Pulse Studio — App Engine & State
 const state = {
   currentView: 'studio',
   history: ['studio'],
