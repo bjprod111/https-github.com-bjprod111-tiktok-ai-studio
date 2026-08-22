@@ -10,7 +10,7 @@
  <link rel="preconnect" href="https://fonts.googleapis.com" />
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
- <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=20260822" />
  <style>
    body { margin: 0; }
    .hidden { display: none !important; }
@@ -23,8 +23,10 @@
    .auth-form button { background: linear-gradient(135deg, var(--lime), #b7ff50); color: #08141d; font-weight: 800; }
    .secondary-btn { background: rgba(255,255,255,0.04) !important; color: var(--text) !important; }
    .nav-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-  .global-nav { position: fixed; z-index: 20; right: 14px; bottom: max(14px, env(safe-area-inset-bottom)); left: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: min(calc(100% - 28px), 402px); margin: 0 auto; padding: 8px; border: 1px solid rgba(217,255,150,0.3); border-radius: 18px; background: rgba(7,13,25,0.96); box-shadow: 0 14px 36px rgba(0,0,0,0.45); }
-  .global-nav button { min-height: 48px; border: 1px solid rgba(148,163,184,0.3); border-radius: 12px; color: var(--text); background: rgba(255,255,255,0.08); font-weight: 800; }
+  .global-nav { position: fixed; z-index: 100; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); left: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: min(calc(100% - 24px), 406px); margin: 0 auto; padding: 8px; border: 1px solid rgba(217,255,150,0.45); border-radius: 20px; background: rgba(7,13,25,0.98); box-shadow: 0 18px 44px rgba(0,0,0,0.58), 0 0 0 1px rgba(255,255,255,0.05); }
+  .global-nav button { min-height: 52px; border: 1px solid rgba(148,163,184,0.32); border-radius: 14px; color: var(--text); background: rgba(255,255,255,0.1); font: 800 0.86rem 'Manrope', sans-serif; transition: transform .15s ease, background .15s ease, box-shadow .15s ease; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .global-nav button:active { transform: scale(.97); }
+  .global-nav button:hover { background: rgba(255,255,255,0.16); }
   .global-nav button:first-child { color: #071016; background: var(--lime); }
   .global-nav button:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 2px; }
    .dashboard-shell, .project-shell { max-width: 920px; margin: 0 auto; }
@@ -234,7 +236,12 @@
    <button type="button" id="globalBackButton" aria-label="Go back">← Back</button>
    <button type="button" id="globalHomeButton" aria-label="Go home">⌂ Home</button>
  </nav>
- <script src="app.js"></script>
- <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>
+ <script src="app.js?v=20260822"></script>
+ <script>
+   if ('serviceWorker' in navigator) {
+     navigator.serviceWorker.getRegistrations().then((registrations) => registrations.forEach((registration) => registration.unregister()));
+   }
+   if ('caches' in window) caches.keys().then((keys) => keys.forEach((key) => caches.delete(key)));
+ </script>
 </body>
 </html>
