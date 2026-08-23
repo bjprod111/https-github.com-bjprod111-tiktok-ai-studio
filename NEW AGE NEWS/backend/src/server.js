@@ -47,6 +47,6 @@ app.get('/api/feed', (req, res) => {
   res.json({ articles });
 });
 
-app.get('*', (_req, res) => res.sendFile(path.join(frontendDir, 'index.html')));
+app.get(/.*/, (_req, res) => res.sendFile(path.join(frontendDir, 'index.html')));
 
 app.listen(port, () => console.log(`NEW AGE NEWS running at http://localhost:${port}`));
