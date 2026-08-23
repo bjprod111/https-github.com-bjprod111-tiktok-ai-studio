@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B0D0F" />
+  <title>NEW AGE NEWS</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">N</span><span>NEW AGE NEWS</span></div>
+    <button id="refreshBtn" class="ghost-btn">Refresh</button>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">NEWS INTELLIGENCE</p>
+        <h1>What matters<br><span>right now.</span></h1>
+        <p class="hero-copy">A continuously updated intelligence feed built from independent news sources.</p>
+      </div>
+      <div class="status"><span class="dot"></span><span id="statusText">Checking local pipeline…</span></div>
+    </section>
+
+    <section class="toolbar">
+      <div><span class="section-label">LATEST INTELLIGENCE</span><span id="count" class="muted"></span></div>
+      <button id="ingestBtn" class="primary-btn">Fetch sources</button>
+    </section>
+
+    <section id="feed" class="feed" aria-live="polite"></section>
+  </main>
+
+  <template id="emptyTemplate">
+    <div class="empty"><h2>No stories yet</h2><p>Add an RSS source through the backend, then fetch sources to populate your local intelligence feed.</p></div>
+  </template>
+  <script src="./app.js"></script>
+</body>
+</html>
