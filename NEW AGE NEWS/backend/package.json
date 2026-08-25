@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "seed": "node src/ingestion/seed.js",
+    "ingest": "node src/ingestion/run-once.js"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",
